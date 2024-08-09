@@ -1,10 +1,14 @@
 package frc.robot.subsystems.drivetrain;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
@@ -30,7 +34,6 @@ public class SwerveModule {
   private final SparkAbsoluteEncoder m_turningAbsEncoder;
   private final SimpleMotorFeedforward m_drivingFeedForward;
   private final SparkPIDController m_turningPIDController;
-  private final SparkPIDController m_drivePIDController;
 
   private final PeriodicIO m_periodicIO = new PeriodicIO();
 
@@ -56,34 +59,33 @@ public class SwerveModule {
 
     m_driveMotor = new TalonFX(driveMotorChannel);
     m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
+
     m_driveEncoder = null;
     m_driveEncoder
         .setPositionConversionFactor(Units.inchesToMeters(Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI)
             / Constants.SwerveDrive.Drive.k_driveGearRatio);
     m_driveEncoder.setVelocityConversionFactor(Units.inchesToMeters(
-        (Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI) / Constants.SwerveDrive.Drive.k_driveGearRatio)
-        / 60.0);
+        (Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI) / Constants.SwerveDrive.Drive.k_driveGearRatio) / 60.0);
     // m_driveMotor.setSmartCurrentLimit(Constants.Drivetrain.Drive.k_driveCurrentLimit);
 
     m_turnMotor = new RARSparkMax(turningMotorChannel, MotorType.kBrushless);
     m_turnMotor.restoreFactoryDefaults();
     m_turnMotor.setIdleMode(IdleMode.kCoast);
     m_turnMotor.setInverted(true);
-    m_turnMotor.setSmartCurrentLimit(Constants.SwerveDrive.Drive.k_driveCurrentLimit);
+    // m_turnMotor.setSmartCurrentLimit(Constants.SwerveDrive.Drive.k_turnCurrentLimit);
 
-    m_turningAbsEncoder = m_turnMotor.getAbsoluteEncoder()
+    m_turningAbsEncoder = m_turnMotor.getAbsoluteEncoder();
 
     m_turningRelEncoder = m_turnMotor.getEncoder();
-    m_turningRelEncoder.setPositionConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI);
-    m_turningRelEncoder.setVelocityConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI / 60.0);
-    resetTurnConfig();
+    // m_turningRelEncoder.setPositionConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI);
+    // m_turningRelEncoder.setVelocityConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI / 60.0);
 
     m_turningPIDController = m_turnMotor.getPIDController();
     m_turningPIDController.setP(Constants.SwerveDrive.Drive.k_driveP);
     m_turningPIDController.setI(Constants.SwerveDrive.Drive.k_driveI);
     m_turningPIDController.setD(Constants.SwerveDrive.Drive.k_driveD);
-    m_turningPIDController.setIZone(Constants.SwerveDrive.Drive.k_driveIZone);
-    m_turningPIDController.setFF(Constants.SwerveDrive.Drive.k_driveFF);
+    // m_turningPIDController.setIZone(Constants.SwerveDrive.Drive.k_driveIZone);
+    // m_turningPIDController.setFF(Constants.SwerveDrive.Drive.k_driveFF);
 
     m_turningPIDController.setPositionPIDWrappingEnabled(true);
     m_turningPIDController.setPositionPIDWrappingMinInput(0.0);
@@ -92,11 +94,9 @@ public class SwerveModule {
         Constants.SwerveDrive.Turn.k_turningMinOutput,
         Constants.SwerveDrive.Turn.k_turningMaxOutput);
 
-    m_drivePIDController = m_driveMotor.getPIDController();
-    m_drivePIDController.setP(Constants.SwerveDrive.Drive.k_driveP);
-    m_drivePIDController.setI(Constants.SwerveDrive.Drive.k_driveI);
-    m_drivePIDController.setD(Constants.SwerveDrive.Drive.k_driveD);
-    m_drivePIDController.setIZone(Constants.SwerveDrive.Drive.k_driveIZone);
+    configs.kP = Constants.SwerveDrive.Drive.k_driveP;
+    configs.kI = Constants.SwerveDrive.Drive.k_driveI;
+    configs.kD = Constants.SwerveDrive.Drive.k_driveD;
     // m_drivePIDController.setFF(Constants.SwerveDrive.Drive.k_FF);
 
     // m_driveMotor.burnFlash();
@@ -156,7 +156,7 @@ public class SwerveModule {
 
   // Pass voltage into turn motor and set drive motor to 0 volts⚡
   public void sysidTurn(double volts) {
-    m_drivePIDController.setReference(0, ControlType.kVoltage);
+    // m_drivePIDController.setReference(0, ControlType.kVoltage);
 
     m_turnMotor.setVoltage(volts);
   }
@@ -178,14 +178,14 @@ public class SwerveModule {
       if (!m_moduleDisabled) {
         double feedforward = m_drivingFeedForward.calculate(getDriveTargetVelocity());
 
-        m_drivePIDController.setReference(getDriveTargetVelocity(), ControlType.kVelocity, 0, feedforward);
+        // m_drivePIDController.setReference(getDriveTargetVelocity(), ControlType.kVelocity, 0, feedforward);
         m_turningPIDController.setReference(getTurnTargetAngleRadians(), ControlType.kPosition);
       } else {
         DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);
         m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
         m_turnMotor.setIdleMode(IdleMode.kCoast);
  
-        m_drivePIDController.setReference(0, ControlType.kVoltage);
+        // m_drivePIDController.setReference(0, ControlType.kVoltage);
         m_turningPIDController.setReference(0, ControlType.kVoltage);
       }
 
@@ -216,12 +216,12 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Voltage")
   public double getDriveMotorVoltage() {
-    return Helpers.getVoltage(m_driveMotor);
+    return m_driveMotor.getMotorVoltage().getValueAsDouble();
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Current")
   public double getDriveMotorCurrent() {
-    return m_driveMotor.getOutputCurrent();
+    return m_driveMotor.getTorqueCurrent().getValueAsDouble();
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Abs/getTurnPosition")
@@ -231,7 +231,7 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Temperature")
   public double getDriveTemp() {
-    return m_driveMotor.getMotorTemperature();
+    return m_driveMotor.getDeviceTemp().getValueAsDouble();
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Turn/Temperature")
