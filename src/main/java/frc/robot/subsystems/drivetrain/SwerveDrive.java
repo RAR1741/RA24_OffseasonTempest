@@ -15,8 +15,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.subsystems.Subsystem;
 
@@ -39,23 +37,23 @@ public class SwerveDrive extends Subsystem {
   private final Translation2d m_backRightLocation = new Translation2d(-Constants.SwerveDrive.k_xCenterDistance,
       -Constants.SwerveDrive.k_yCenterDistance);
 
-      private static final SwerveModule[] m_modules = {
-        new SwerveModule(Constants.SwerveDrive.Drive.k_FLMotorId,
-            Constants.SwerveDrive.Turn.k_FLMotorId,
-            Constants.SwerveDrive.Turn.k_FLOffset, "FL"), // 0
-        new SwerveModule(Constants.SwerveDrive.Drive.k_FRMotorId,
-            Constants.SwerveDrive.Turn.k_FRMotorId,
-            Constants.SwerveDrive.Turn.k_FROffset, "FR"), // 1
-        new SwerveModule(Constants.SwerveDrive.Drive.k_BLMotorId,
-            Constants.SwerveDrive.Turn.k_BLMotorId,
-            Constants.SwerveDrive.Turn.k_BROffset, "BR"), // 2
-        new SwerveModule(Constants.SwerveDrive.Drive.k_BLMotorId,
-            Constants.SwerveDrive.Turn.k_BLMotorId,
-            Constants.SwerveDrive.Turn.k_BLOffset, "BL") // 3
-    };
+  private static final SwerveModule[] m_modules = {
+      new SwerveModule(Constants.SwerveDrive.Drive.k_FLMotorId,
+          Constants.SwerveDrive.Turn.k_FLMotorId,
+          Constants.SwerveDrive.Turn.k_FLOffset, "FL"), // 0
+      new SwerveModule(Constants.SwerveDrive.Drive.k_FRMotorId,
+          Constants.SwerveDrive.Turn.k_FRMotorId,
+          Constants.SwerveDrive.Turn.k_FROffset, "FR"), // 1
+      new SwerveModule(Constants.SwerveDrive.Drive.k_BRMotorId,
+          Constants.SwerveDrive.Turn.k_BRMotorId,
+          Constants.SwerveDrive.Turn.k_BROffset, "BR"), // 2
+      new SwerveModule(Constants.SwerveDrive.Drive.k_BLMotorId,
+          Constants.SwerveDrive.Turn.k_BLMotorId,
+          Constants.SwerveDrive.Turn.k_BLOffset, "BL") // 3
+  };
 
   private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
-  //private final Limelight m_limelight = Limelight.getInstance();
+  // private final Limelight m_limelight = Limelight.getInstance();
 
   private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
       m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
@@ -80,13 +78,13 @@ public class SwerveDrive extends Subsystem {
   }
 
   public void brakeOn() {
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       module.getDriveMotor().setNeutralMode(NeutralModeValue.Coast);
     }
   }
 
   public void brakeOff() {
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       module.getDriveMotor().setNeutralMode(NeutralModeValue.Coast);
     }
   }
@@ -117,7 +115,7 @@ public class SwerveDrive extends Subsystem {
   }
 
   public void clearTurnPIDAccumulation() {
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       module.clearTurnPIDAccumulation();
     }
   }
@@ -135,7 +133,7 @@ public class SwerveDrive extends Subsystem {
   }
 
   public void resetOdometry(Pose2d pose) {
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       module.resetDriveEncoder();
     }
 
@@ -177,7 +175,7 @@ public class SwerveDrive extends Subsystem {
     double maxBoostSpeed = Constants.SwerveDrive.k_maxSpeed * Constants.SwerveDrive.k_boostScaler;
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, maxBoostSpeed);
 
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
       m_modules[i].setDesiredState(swerveModuleStates[i]);
     }
   }
@@ -193,7 +191,7 @@ public class SwerveDrive extends Subsystem {
       moduleState.speedMetersPerSecond = 0.0;
     }
 
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
       m_modules[i].setDesiredState(swerveModuleStates[i]);
     }
   }
@@ -204,7 +202,7 @@ public class SwerveDrive extends Subsystem {
 
   @Override
   public void periodic() {
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       module.periodic();
     }
   }
@@ -222,7 +220,7 @@ public class SwerveDrive extends Subsystem {
   private ArrayList<Double> getCurrentStates() {
     ArrayList<Double> currentStates = new ArrayList<>();
 
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       currentStates.add(module.getTurnPosition() * 360);
       currentStates.add(module.getDriveVelocity());
     }
@@ -233,7 +231,7 @@ public class SwerveDrive extends Subsystem {
   private ArrayList<Double> getDesiredStates() {
     ArrayList<Double> desiredStates = new ArrayList<>();
 
-    for(SwerveModule module : m_modules) {
+    for (SwerveModule module : m_modules) {
       desiredStates.add(module.getDesiredState().angle.getDegrees());
       desiredStates.add(module.getDesiredState().speedMetersPerSecond);
     }
@@ -243,36 +241,40 @@ public class SwerveDrive extends Subsystem {
 
   // @Override
   // public void outputTelemetry() {
-  //   double currentTime = Timer.getFPGATimestamp();
+  // double currentTime = Timer.getFPGATimestamp();
 
-  //   m_poseEstimator.updateWithTime(
-  //       currentTime,
-  //       m_gyro.getRotation2d(),
-  //       new SwerveModulePosition[] {
-  //           m_frontLeft.getPosition(),
-  //           m_frontRight.getPosition(),
-  //           m_backLeft.getPosition(),
-  //           m_backRight.getPosition()
-  //       });
+  // m_poseEstimator.updateWithTime(
+  // currentTime,
+  // m_gyro.getRotation2d(),
+  // new SwerveModulePosition[] {
+  // m_frontLeft.getPosition(),
+  // m_frontRight.getPosition(),
+  // m_backLeft.getPosition(),
+  // m_backRight.getPosition()
+  // });
 
-  //   // if (m_limelight.seesAprilTag()) {
-  //     // m_poseEstimator.addVisionMeasurement(
-  //     // m_limelight.getBotpose2D(),
-  //     // m_limelight.getTimeOffset(currentTime));
-  //   // }
+  // // if (m_limelight.seesAprilTag()) {
+  // // m_poseEstimator.addVisionMeasurement(
+  // // m_limelight.getBotpose2D(),
+  // // m_limelight.getTimeOffset(currentTime));
+  // // }
 
-  //   m_frontLeft.outputTelemetry();
-  //   m_frontRight.outputTelemetry();
-  //   m_backLeft.outputTelemetry();
-  //   m_backRight.outputTelemetry();
+  // m_frontLeft.outputTelemetry();
+  // m_frontRight.outputTelemetry();
+  // m_backLeft.outputTelemetry();
+  // m_backRight.outputTelemetry();
 
-  //   SmartDashboard.putNumberArray("Drivetrain/CurrentStates", getCurrentStates());
-  //   SmartDashboard.putNumberArray("Drivetrain/DesiredStates", getDesiredStates());
+  // SmartDashboard.putNumberArray("Drivetrain/CurrentStates",
+  // getCurrentStates());
+  // SmartDashboard.putNumberArray("Drivetrain/DesiredStates",
+  // getDesiredStates());
 
-  //   SmartDashboard.putNumber("Drivetrain/Gyro/AngleDegrees", m_gyro.getRotation2d().getDegrees());
-  //   SmartDashboard.putNumber("Drivetrain/Gyro/Pitch", m_gyro.getPitch());
-  //   SmartDashboard.putNumberArray("Drivetrain/Pose",
-  //       new double[] { getPose().getX(), getPose().getY(), getPose().getRotation().getDegrees() });
+  // SmartDashboard.putNumber("Drivetrain/Gyro/AngleDegrees",
+  // m_gyro.getRotation2d().getDegrees());
+  // SmartDashboard.putNumber("Drivetrain/Gyro/Pitch", m_gyro.getPitch());
+  // SmartDashboard.putNumberArray("Drivetrain/Pose",
+  // new double[] { getPose().getX(), getPose().getY(),
+  // getPose().getRotation().getDegrees() });
   // }
 
   public interface Module {

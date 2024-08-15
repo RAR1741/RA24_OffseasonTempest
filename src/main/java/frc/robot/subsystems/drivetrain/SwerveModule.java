@@ -29,7 +29,6 @@ import frc.robot.wrappers.RARSparkMax;
 public class SwerveModule {
   private final TalonFX m_driveMotor;
   private final RARSparkMax m_turnMotor;
-  private final RelativeEncoder m_driveEncoder;
   private final RelativeEncoder m_turningRelEncoder;
   private final SparkAbsoluteEncoder m_turningAbsEncoder;
   private final SimpleMotorFeedforward m_drivingFeedForward;
@@ -59,13 +58,9 @@ public class SwerveModule {
 
     m_driveMotor = new TalonFX(driveMotorChannel);
     m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
-
-    m_driveEncoder = null;
-    m_driveEncoder
-        .setPositionConversionFactor(Units.inchesToMeters(Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI)
-            / Constants.SwerveDrive.Drive.k_driveGearRatio);
-    m_driveEncoder.setVelocityConversionFactor(Units.inchesToMeters(
-        (Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI) / Constants.SwerveDrive.Drive.k_driveGearRatio) / 60.0);
+    
+    // m_driveEncoder.setVelocityConversionFactor(Units.inchesToMeters(
+    //     (Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI) / Constants.SwerveDrive.Drive.k_driveGearRatio) / 60.0);
     // m_driveMotor.setSmartCurrentLimit(Constants.Drivetrain.Drive.k_driveCurrentLimit);
 
     m_turnMotor = new RARSparkMax(turningMotorChannel, MotorType.kBrushless);
@@ -94,10 +89,15 @@ public class SwerveModule {
         Constants.SwerveDrive.Turn.k_turningMinOutput,
         Constants.SwerveDrive.Turn.k_turningMaxOutput);
 
-    configs.kP = Constants.SwerveDrive.Drive.k_driveP;
-    configs.kI = Constants.SwerveDrive.Drive.k_driveI;
-    configs.kD = Constants.SwerveDrive.Drive.k_driveD;
-    // m_drivePIDController.setFF(Constants.SwerveDrive.Drive.k_FF);
+    TalonFXConfigurator configurator = m_driveMotor.getConfigurator();
+    TalonFXConfiguration configuration = new TalonFXConfiguration();
+    configuration.Slot0.kP = Constants.SwerveDrive.Drive.k_driveP;
+    configuration.Slot0.kI = Constants.SwerveDrive.Drive.k_driveP;
+    configuration.Slot0.kD = Constants.SwerveDrive.Drive.k_driveP;
+    // configuration.Feedback.RotorToSensorRatio = 
+    configuration.Feedback.SensorToMechanismRatio = Units.inchesToMeters(Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI)
+            / Constants.SwerveDrive.Drive.k_driveGearRatio;
+    configurator.apply(configuration);
 
     // m_driveMotor.burnFlash();
     m_turnMotor.burnFlash();
@@ -109,7 +109,7 @@ public class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
-    double drivePosition = m_driveEncoder.getPosition();
+    double drivePosition = m_driveMotor.getPosition().getValueAsDouble();
 
     return new SwerveModulePosition(
         drivePosition, Rotation2d.fromRadians(getTurnPosition()));
@@ -128,7 +128,7 @@ public class SwerveModule {
   }
 
   public void resetDriveEncoder() {
-    m_driveEncoder.setPosition(0.0);
+    m_driveMotor.setPosition(0.0);
   }
 
   // public void resetTurnConfig() {
@@ -241,12 +241,12 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Velocity")
   public double getDriveVelocity() {
-    return m_driveEncoder.getVelocity();
+    return m_driveMotor.getVelocity().getValueAsDouble();
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Position")
   public double getDrivePosition() {
-    return m_driveEncoder.getPosition();
+    return m_driveMotor.getPosition().getValueAsDouble();
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Turn/Position")
