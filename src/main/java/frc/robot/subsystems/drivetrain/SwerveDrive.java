@@ -1,8 +1,6 @@
 package frc.robot.subsystems.drivetrain;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.kauailabs.navx.frc.AHRS;
 

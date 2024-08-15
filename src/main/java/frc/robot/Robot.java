@@ -28,8 +28,6 @@ public class Robot extends LoggedRobot {
   private final DriverController m_driverController = new DriverController(0, true, true);
   private final OperatorController m_operatorController = new OperatorController(1, true, true);
 
-  private int m_colorState = 0;
-
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xRateLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yRateLimiter = new SlewRateLimiter(3);
@@ -40,8 +38,6 @@ public class Robot extends LoggedRobot {
   public final SwerveDrive m_swerve = SwerveDrive.getInstance();
   private Task m_currentTask;
   private AutoRunner m_autoRunner = AutoRunner.getInstance();
-  // private final Limelight m_limelight = Limelight.getInstance();
-  private boolean m_autoHasRan = false;
 
   // The mere instantiation of this object will cause the compressor to start
   // running. We don't need to do anything else with it, so we'll suppress the
@@ -81,27 +77,13 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     m_allSubsystems.forEach(subsystem -> subsystem.periodic());
     m_allSubsystems.forEach(subsystem -> subsystem.writePeriodicOutputs());
-    // m_allSubsystems.forEach(subsystem -> subsystem.outputTelemetry());
     m_allSubsystems.forEach(subsystem -> subsystem.writeToLog());
-
-    if (m_driverController.getWantsDemoLEDCycle()){
-      int mode = Preferences.getInt("demoLEDMode", 0);
-
-      mode += 1;
-      mode %= 8;
-
-      Preferences.setInt("demoLEDMode", mode);
-    }
-
-    SmartDashboard.putNumber("Compressor/Pressure", m_compressor.getPressure());
 
     updateSim();
   }
 
   @Override
   public void autonomousInit() {
-    m_autoHasRan = true;
-
     m_swerve.brakeOff();
 
     m_autoRunner.setAutoMode(m_autoChooser.getSelectedAuto());
@@ -178,18 +160,6 @@ public class Robot extends LoggedRobot {
 
     if (m_driverController.getWantsResetGyro()) {
       m_swerve.resetGyro();
-    }
-
-    if (m_driverController.getWantsGripToggle() ||
-        m_operatorController.getWantsGripToggle()) {
-    }
-
-    if (m_operatorController.getWantsColorCycle()) {
-      if (m_colorState == 1) {
-        m_colorState = 0;
-      } else {
-        m_colorState++;
-      }
     }
 
     m_driverController.outputTelemetry();

@@ -6,12 +6,10 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
@@ -37,7 +35,6 @@ public class SwerveModule {
   private final PeriodicIO m_periodicIO = new PeriodicIO();
 
   private final double m_turningOffset;
-  @SuppressWarnings("unused")
   private final String m_moduleName;
 
   private static class PeriodicIO {
