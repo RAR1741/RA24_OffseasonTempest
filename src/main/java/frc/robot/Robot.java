@@ -54,6 +54,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    new RobotTelemetry();
+
     // Initialize on-board logging
     DataLogManager.start();
     System.out.println("Logging initialized. Fard.");
@@ -71,6 +73,8 @@ public class Robot extends LoggedRobot {
  
     // Camera server
     m_camera = CameraServer.startAutomaticCapture();
+
+    m_allSubsystems.add(m_swerve);
   }
 
   @Override

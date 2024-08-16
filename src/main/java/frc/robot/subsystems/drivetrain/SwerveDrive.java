@@ -68,6 +68,8 @@ public class SwerveDrive extends Subsystem {
       new Pose2d(0, 0, Rotation2d.fromDegrees(0)) // TODO: CLARIFY THIS WORKS
   );
 
+  // private SwerveDrivePoseEstimator poseEstimator2 = new SwerveDrivePoseEstimator(m_kin)
+
   public static SwerveDrive getInstance() {
     if (m_swerve == null) {
       m_swerve = new SwerveDrive();
