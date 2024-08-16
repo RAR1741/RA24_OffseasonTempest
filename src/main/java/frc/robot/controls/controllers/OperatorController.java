@@ -1,7 +1,8 @@
 package frc.robot.controls.controllers;
 
-public class OperatorController extends FilteredController {
+import edu.wpi.first.wpilibj.Preferences;
 
+public class OperatorController extends FilteredController {
   public OperatorController(int port) {
     super(port, false, false);
   }
@@ -10,73 +11,70 @@ public class OperatorController extends FilteredController {
     super(port, useDeadband, useSquaredInput);
   }
 
-  public double getArmHorizontalChange(double strength) {
-    return -this.getFilteredAxis(0) * strength;
+  public boolean getWantsShoot() {
+    return this.getRawButton(Button.A);
   }
 
-  public double getArmVerticalChange(double strength) {
-    return this.getFilteredAxis(5) * -strength;
+  public boolean getWantsEject() {
+    return this.getRawButton(Button.B);
   }
 
-  public boolean getWantsGripToggle() {
-    return this.getRawButtonPressed(5);
+  public boolean getWantsEjectFinished() {
+    return this.getRawButtonReleased(Button.B);
   }
 
-  public boolean getWantsColorCycle() {
-    // return false;
-    return this.getRawButtonPressed(7);
+  public double getWantsManualShooterPivot(double limit) {
+    return (this.getFilteredAxis(Axis.RIGHT_TRIGGER) - this.getFilteredAxis(Axis.LEFT_TRIGGER)) * limit;
   }
 
-  public boolean getWantsRobotFrontInverted() {
-    return false;
-    // return this.getRawButtonPressed(7);
+  public boolean getWantsAmpPivot() {
+    return this.getRawButtonPressed(Button.X);
   }
 
-  public boolean getWantsDefaultState() {
-    return this.getRawButtonPressed(2);
+  public boolean getWantsSubwooferAngle() {
+    return this.getRawButtonPressed(Button.Y);
   }
 
-  public boolean getWantsDoubleSubstation() {
-    return this.getRawButtonPressed(4);
+  public boolean getWantsShooterMaxAngle() {
+    return this.getRawButtonPressed(Button.START);
   }
 
-  public boolean getWantsGroundPickup() {
-    return this.getRawButtonPressed(1);
+  public boolean getWantsShooterMinAngle() {
+    return this.getRawButtonPressed(Button.BACK);
   }
 
-  public boolean getWantsGroundScore() {
-    return this.getRawButtonPressed(3);
+  public boolean getWantsMaxSpeed() {
+    return this.getRawButtonPressed(Button.RIGHT_BUMPER);
   }
 
-  public boolean getWantsHighConeScore() {
-    return this.getHatUpPressed();
+  public boolean getWantsNoSpeed() {
+    return this.getRawButtonPressed(Button.LEFT_BUMPER);
   }
 
-  public boolean getWantsMidConeScore() {
-    return this.getHatRightPressed();
+  public boolean getWantsClimberLower() {
+    return this.getHat(Direction.DOWN);
   }
 
-  public boolean getWantsHighCubeScore() {
-    return this.getHatLeftPressed();
+  public boolean getWantsClimberTiltRight() {
+    return this.getHat(Direction.RIGHT);
   }
 
-  public boolean getWantsMidCubeScore() {
-    return this.getHatDownPressed();
+  public boolean getWantsClimberRaise() {
+    return this.getHat(Direction.UP);
   }
 
-  public boolean getWantsElbowChange() {
-    return this.getRawButton(8);
+  public boolean getWantsClimberTiltLeft() {
+    return this.getHat(Direction.LEFT);
   }
 
-  public boolean getWantsWristRotate() {
-    return this.getRawButtonPressed(6);
+  public boolean getWantsShooterOffDemo() {
+    return this.getRawButtonPressed(Button.LEFT_JOYSTICK);
   }
 
-  public boolean getWantsWristCorrectionClockwise() {
-    return this.getFilteredAxis(3) > 0.5;
-  }
-
-  public boolean getWantsWristCorrectionCounterClockwise() {
-    return this.getFilteredAxis(2) > 0.5;
+  public boolean getWantsDemoLEDCycle() {
+    if(!Preferences.getBoolean("Demo Mode", false)){
+      return false;
+    }
+    return this.getRawButtonPressed(Button.RIGHT_JOYSTICK);
   }
 }

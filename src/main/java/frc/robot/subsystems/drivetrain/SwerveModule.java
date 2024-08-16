@@ -49,9 +49,9 @@ public class SwerveModule {
     m_moduleName = moduleName;
 
     m_drivingFeedForward = new SimpleMotorFeedforward(
-        Constants.SwerveDrive.Drive.k_driveFeedForwardS,
-        Constants.SwerveDrive.Drive.k_driveFeedForwardV,
-        Constants.SwerveDrive.Drive.k_driveFeedForwardA);
+        Constants.SwerveDrive.Drive.k_S,
+        Constants.SwerveDrive.Drive.k_V,
+        Constants.SwerveDrive.Drive.k_A);
 
     m_driveMotor = new TalonFX(driveMotorChannel);
     m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
@@ -73,9 +73,9 @@ public class SwerveModule {
     // m_turningRelEncoder.setVelocityConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI / 60.0);
 
     m_turningPIDController = m_turnMotor.getPIDController();
-    m_turningPIDController.setP(Constants.SwerveDrive.Drive.k_driveP);
-    m_turningPIDController.setI(Constants.SwerveDrive.Drive.k_driveI);
-    m_turningPIDController.setD(Constants.SwerveDrive.Drive.k_driveD);
+    m_turningPIDController.setP(Constants.SwerveDrive.Drive.k_P);
+    m_turningPIDController.setI(Constants.SwerveDrive.Drive.k_I);
+    m_turningPIDController.setD(Constants.SwerveDrive.Drive.k_D);
     // m_turningPIDController.setIZone(Constants.SwerveDrive.Drive.k_driveIZone);
     // m_turningPIDController.setFF(Constants.SwerveDrive.Drive.k_driveFF);
 
@@ -88,9 +88,9 @@ public class SwerveModule {
 
     TalonFXConfigurator configurator = m_driveMotor.getConfigurator();
     TalonFXConfiguration configuration = new TalonFXConfiguration();
-    configuration.Slot0.kP = Constants.SwerveDrive.Drive.k_driveP;
-    configuration.Slot0.kI = Constants.SwerveDrive.Drive.k_driveP;
-    configuration.Slot0.kD = Constants.SwerveDrive.Drive.k_driveP;
+    configuration.Slot0.kP = Constants.SwerveDrive.Drive.k_P;
+    configuration.Slot0.kI = Constants.SwerveDrive.Drive.k_P;
+    configuration.Slot0.kD = Constants.SwerveDrive.Drive.k_P;
     // configuration.Feedback.RotorToSensorRatio = 
     configuration.Feedback.SensorToMechanismRatio = Units.inchesToMeters(Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI)
             / Constants.SwerveDrive.Drive.k_driveGearRatio;

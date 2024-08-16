@@ -1,10 +1,7 @@
 package frc.robot.controls.controllers;
 
-import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class DriverController extends FilteredController {
-  private String m_smartDashboardKey = "DriverInput/";
+  public double k_triggerActivationThreshold = 0.5;
 
   public DriverController(int port) {
     super(port, false, false);
@@ -14,55 +11,114 @@ public class DriverController extends FilteredController {
     super(port, useDeadband, useSquaredInput);
   }
 
-  private final double k_triggerActivationThreshold = 0.5;
-
   // Drive
   public double getForwardAxis() {
-    return -this.getFilteredAxis(1);
+    // return -this.getFilteredAxis(Axis.LEFT_Y_AXIS);
+    return -this.getFilteredAxis(Axis.LEFT_Y_AXIS) * k_allianceMultiplier;
   }
 
   public double getStrafeAxis() {
-    return -this.getFilteredAxis(0);
+    // return -this.getFilteredAxis(Axis.LEFT_X_AXIS);
+    return -this.getFilteredAxis(Axis.LEFT_X_AXIS) * k_allianceMultiplier;
   }
 
   public double getTurnAxis() {
-    return -this.getFilteredAxis(4);
+    return -this.getFilteredAxis(Axis.RIGHT_X_AXIS);
   }
 
   public double getSlowScaler() {
-    return this.getFilteredAxis(3);
+    return this.getFilteredAxis(Axis.RIGHT_TRIGGER);
   }
 
   public double getBoostScaler() {
-    return this.getFilteredAxis(2);
+    return this.getFilteredAxis(Axis.LEFT_TRIGGER);
   }
 
   public boolean getWantsResetGyro() {
-    return this.getRawButton(4);
+    return this.getRawButtonPressed(Button.START);
   }
 
-  public boolean getWantsBrake() {
-    return this.getRawButton(5);
+  public boolean getWantsResetModules() {
+    return this.getRawButtonPressed(Button.BACK);
   }
 
-  public boolean getWantsGripToggle() {
-    return this.getRawButtonPressed(1);
+  // SysId test mode //
+  public boolean getWantsSysIdQuasistaticForward() {
+    return this.getRawButtonPressed(Button.A);
   }
 
-  public boolean getWantsGripClosed() {
-    return this.getRawButtonPressed(3);
+  public boolean getWantsSysIdQuasistaticBackward() {
+    return this.getRawButtonPressed(Button.B);
   }
 
-  public boolean getWantsDemoLEDCycle() {
-    if(!Preferences.getBoolean("demoMode", false)){
-      return false;
-    }
-    return this.getRawButtonPressed(7);
+  public boolean getWantsSysIdDynamicForward() {
+    return this.getRawButtonPressed(Button.X);
   }
 
-  public void outputTelemetry() {
-    SmartDashboard.putNumber(m_smartDashboardKey + "Forward", getForwardAxis());
-    SmartDashboard.putNumber(m_smartDashboardKey + "Strafe", getStrafeAxis());
-    SmartDashboard.putNumber(m_smartDashboardKey + "Turn", getTurnAxis());
+  public boolean getWantsSysIdDynamicBackward() {
+    return this.getRawButtonPressed(Button.Y);
+  }
+
+  public boolean getWantSysIdStop() {
+    return this.getRawButtonPressed(Button.START);
+  }
+  /////
+
+  // Manual system test modes //
+  public double testPositive() {
+    return this.getFilteredAxis(Axis.LEFT_TRIGGER);
+  }
+
+  public double testNegative() {
+    return this.getFilteredAxis(Axis.RIGHT_TRIGGER);
+  }
+  /////
+
+  public boolean getWantsIntakePivotToggle() {
+    return this.getRawButtonPressed(Button.LEFT_BUMPER);
+  }
+
+  public boolean getWantsIntakeAutoFlipOverride() {
+    return this.getRawButton(Button.LEFT_BUMPER);
+  }
+
+  public boolean getWantsIntake() {
+    return this.getRawButton(Button.RIGHT_BUMPER);
+  }
+
+  public boolean getWantsStopIntake() {
+    return this.getRawButtonReleased(Button.RIGHT_BUMPER);
+  }
+
+  public boolean getWantsEject() {
+    return this.getRawButton(Button.B);
+  }
+
+  public boolean getWantsEjectFinished() {
+    return this.getRawButtonReleased(Button.B);
+  }
+
+  public boolean getWantsShooterPass() {
+    return this.getRawButton(Button.A);
+  }
+
+  public boolean getWantsAutoAim() {
+    return this.getRawButton(Button.X);
+  }
+
+  public boolean getWantsEjectPivot() {
+    return this.getRawButtonPressed(Button.Y);
+  }
+
+  public boolean getWantsTrap() {
+    return this.getHat(Direction.RIGHT);
+  }
+
+  public boolean getWantsLLOn() {
+    return this.getHatPressed(Direction.UP);
+  }
+
+  public boolean getWantsLLOff() {
+    return this.getHatPressed(Direction.DOWN);
   }
 }

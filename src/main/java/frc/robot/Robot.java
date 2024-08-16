@@ -70,7 +70,7 @@ public class Robot extends LoggedRobot {
 
     // Set up the Field2d object for simulation
     SmartDashboard.putData("Field", m_field);
- 
+
     // Camera server
     m_camera = CameraServer.startAutomaticCapture();
 
@@ -142,7 +142,7 @@ public class Robot extends LoggedRobot {
     // boostScaler should scale between 1 and k_boostScaler
     double boostScaler = 1 + (m_driverController.getBoostScaler() * (Constants.SwerveDrive.k_boostScaler - 1));
 
-    if(Preferences.getBoolean("demoMode", false)) {
+    if (Preferences.getBoolean("demoMode", false)) {
       // boostScaler = 1;
       xSpeed *= Constants.SwerveDrive.k_maxDemoSpeed;
       ySpeed *= Constants.SwerveDrive.k_maxDemoSpeed;
@@ -155,7 +155,7 @@ public class Robot extends LoggedRobot {
 
     xSpeed *= slowScaler * boostScaler;
     ySpeed *= slowScaler;// * boostScaler;
-    if(Preferences.getBoolean("demoMode", false)){
+    if (Preferences.getBoolean("demoMode", false)) {
       ySpeed *= boostScaler;
     }
     rot *= slowScaler * boostScaler;
@@ -165,8 +165,6 @@ public class Robot extends LoggedRobot {
     if (m_driverController.getWantsResetGyro()) {
       m_swerve.resetGyro();
     }
-
-    m_driverController.outputTelemetry();
   }
 
   @Override
