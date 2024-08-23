@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.controls.Deadband;
 import frc.robot.controls.SquaredInput;
 
-public class FilteredController extends GenericHID {
+public class FilteredController implements ControllerIO {
   private static final double DEADBAND_LIMIT = 0.03;
 
   private boolean m_useDeadband;
@@ -14,6 +14,8 @@ public class FilteredController extends GenericHID {
 
   public double k_allianceMultiplier = -1.0;
 
+  private ControllerIOInputsAutoLogged inputs = new ControllerIOInputsAutoLogged();
+  private GenericHID m_hid;
   private Deadband m_deadband = new Deadband(DEADBAND_LIMIT);
   private SquaredInput m_squaredInput = new SquaredInput(DEADBAND_LIMIT);
 
@@ -22,7 +24,7 @@ public class FilteredController extends GenericHID {
       new DPadButton(this, DPadButton.Direction.RIGHT) };
 
   public FilteredController(int port) {
-    super(port);
+    m_hid = new GenericHID(port);
     m_useDeadband = false;
     m_useSquaredInput = false;
   }
@@ -42,7 +44,7 @@ public class FilteredController extends GenericHID {
   }
 
   public double getFilteredAxis(int axis) {
-    double value = this.getRawAxis(axis);
+    double value = inputs.m_axisValues[axis];
 
     // Apply squared input, if requested
     if (m_useSquaredInput) {
@@ -57,12 +59,32 @@ public class FilteredController extends GenericHID {
     return value;
   }
 
+  public boolean getButton(int button) {
+    return inputs.m_buttonValues[button];
+  }
+
+  public boolean getButtonPressed(int button) {
+    return inputs.m_buttonReleasedValues[button];
+  }
+
+  public boolean getButtonReleased(int button) {
+    return inputs.m_buttonReleasedValues[button];
+  }
+
+  public int getPOV() {
+    return inputs.m_dPadDir;
+  }
+
   public boolean getHatPressed(int direction) {
     return hatButtons[direction].getPressed();
   }
 
   public boolean getHat(int direction) {
     return hatButtons[direction].get();
+  }
+
+  public void periodic() {
+    this.updateInputs(inputs);
   }
 
   public interface Button {
@@ -87,10 +109,25 @@ public class FilteredController extends GenericHID {
     int RIGHT_Y_AXIS = 5;
   }
 
-  public interface Direction {
+  public interface DPadDirection {
     int UP = 0;
     int DOWN = 1;
     int LEFT = 2;
     int RIGHT = 3;
+  }
+
+  @Override
+  public void updateInputs(ControllerIOInputs inputs) {
+    for (int i = m_hid.getAxisCount(); i > 0; i--) {
+      inputs.m_axisValues[i] = m_hid.getRawAxis(i);
+    }
+
+    for (int i = m_hid.getButtonCount(); i > 0; i--) {
+      inputs.m_buttonValues[i] = m_hid.getRawButton(i);
+      inputs.m_buttonPressedValues[i] = m_hid.getRawButtonPressed(i);
+      inputs.m_buttonReleasedValues[i] = m_hid.getRawButtonReleased(i);
+    }
+
+    inputs.m_dPadDir = m_hid.getPOV();
   }
 }

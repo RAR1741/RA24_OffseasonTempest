@@ -19,6 +19,7 @@ import frc.robot.autonomous.AutoChooser;
 import frc.robot.autonomous.AutoRunner;
 import frc.robot.autonomous.tasks.Task;
 import frc.robot.controls.controllers.DriverController;
+import frc.robot.controls.controllers.FilteredController;
 import frc.robot.controls.controllers.OperatorController;
 import frc.robot.simulation.Field;
 import frc.robot.subsystems.Subsystem;
@@ -35,6 +36,7 @@ public class Robot extends LoggedRobot {
 
   // Robot subsystems
   private List<Subsystem> m_allSubsystems = new ArrayList<>();
+  private List<FilteredController> m_allControllers = new ArrayList<>();
   public final SwerveDrive m_swerve = SwerveDrive.getInstance();
   private Task m_currentTask;
   private AutoRunner m_autoRunner = AutoRunner.getInstance();
@@ -42,6 +44,7 @@ public class Robot extends LoggedRobot {
   // The mere instantiation of this object will cause the compressor to start
   // running. We don't need to do anything else with it, so we'll suppress the
   // warning.
+  @SuppressWarnings("unused")
   private final Compressor m_compressor = new Compressor(PneumaticsModuleType.REVPH);
 
   @SuppressWarnings("unused")
@@ -75,6 +78,9 @@ public class Robot extends LoggedRobot {
     m_camera = CameraServer.startAutomaticCapture();
 
     m_allSubsystems.add(m_swerve);
+
+    m_allControllers.add(m_driverController);
+    m_allControllers.add(m_operatorController);
   }
 
   @Override
@@ -129,8 +135,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double xSpeed = m_xRateLimiter.calculate(m_driverController.getForwardAxis());
+    m_allControllers.forEach(controller -> controller.periodic());
 
+    double xSpeed = m_xRateLimiter.calculate(m_driverController.getForwardAxis());
     double ySpeed = m_yRateLimiter.calculate(m_driverController.getStrafeAxis());
 
     double rot = m_rotRateLimiter.calculate(m_driverController.getTurnAxis());
