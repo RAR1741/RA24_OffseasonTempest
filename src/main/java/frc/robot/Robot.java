@@ -8,8 +8,6 @@ import org.littletonrobotics.junction.LoggedRobot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -23,7 +21,6 @@ import frc.robot.controls.controllers.FilteredController;
 import frc.robot.controls.controllers.OperatorController;
 import frc.robot.simulation.Field;
 import frc.robot.subsystems.Subsystem;
-import frc.robot.subsystems.drivetrain.SwerveDrive;
 
 public class Robot extends LoggedRobot {
   private final DriverController m_driverController = new DriverController(0, true, true);
@@ -37,7 +34,7 @@ public class Robot extends LoggedRobot {
   // Robot subsystems
   private List<Subsystem> m_allSubsystems = new ArrayList<>();
   private List<FilteredController> m_allControllers = new ArrayList<>();
-  public final SwerveDrive m_swerve = SwerveDrive.getInstance();
+  // public final SwerveDrive m_swerve = new SwerveDrive();
   private Task m_currentTask;
   private AutoRunner m_autoRunner = AutoRunner.getInstance();
 
@@ -77,14 +74,15 @@ public class Robot extends LoggedRobot {
     // Camera server
     m_camera = CameraServer.startAutomaticCapture();
 
-    m_allSubsystems.add(m_swerve);
+    // m_allSubsystems.add(m_swerve);
 
     m_allControllers.add(m_driverController);
-    m_allControllers.add(m_operatorController);
+    // m_allControllers.add(m_operatorController);
   }
 
   @Override
   public void robotPeriodic() {
+    m_allControllers.forEach(controller -> controller.periodic());
     m_allSubsystems.forEach(subsystem -> subsystem.periodic());
     m_allSubsystems.forEach(subsystem -> subsystem.writePeriodicOutputs());
     m_allSubsystems.forEach(subsystem -> subsystem.writeToLog());
@@ -94,7 +92,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_swerve.brakeOff();
+    // m_swerve.brakeOff();
 
     m_autoRunner.setAutoMode(m_autoChooser.getSelectedAuto());
     m_currentTask = m_autoRunner.getNextTask();
@@ -128,15 +126,13 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    m_swerve.brakeOff();
-    m_swerve.drive(0, 0, 0, false);
-    m_swerve.setGyroAngleAdjustment(0);
+    // m_swerve.brakeOff();
+    // m_swerve.drive(0, 0, 0, false);
+    // m_swerve.setGyroAngleAdjustment(0);
   }
 
   @Override
   public void teleopPeriodic() {
-    m_allControllers.forEach(controller -> controller.periodic());
-
     double xSpeed = m_xRateLimiter.calculate(m_driverController.getForwardAxis());
     double ySpeed = m_yRateLimiter.calculate(m_driverController.getStrafeAxis());
 
@@ -167,10 +163,10 @@ public class Robot extends LoggedRobot {
     }
     rot *= slowScaler * boostScaler;
 
-    m_swerve.drive(xSpeed, ySpeed, rot, true);
+    // m_swerve.drive(xSpeed, ySpeed, rot, true);
 
     if (m_driverController.getWantsResetGyro()) {
-      m_swerve.resetGyro();
+      // m_swerve.resetGyro();
     }
   }
 
@@ -182,7 +178,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     m_allSubsystems.forEach(subsystem -> subsystem.stop());
-    m_swerve.resetOdometry(new Pose2d(0, 0, new Rotation2d(0)));
+    // m_swerve.resetOdometry(new Pose2d(0, 0, new Rotation2d(0)));
   }
 
   @Override
@@ -202,11 +198,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testPeriodic() {
-    m_swerve.drive(0, 0, 0, false);
+    // m_swerve.drive(0, 0, 0, false);
   }
 
   private void updateSim() {
     // Update the odometry in the sim.
-    m_field.setRobotPose(m_swerve.getPose());
+    // m_field.setRobotPose(m_swerve.getPose());
   }
 }

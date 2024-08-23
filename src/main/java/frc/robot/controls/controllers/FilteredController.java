@@ -14,7 +14,9 @@ public class FilteredController implements ControllerIO {
 
   public double k_allianceMultiplier = -1.0;
 
-  private ControllerIOInputsAutoLogged inputs = new ControllerIOInputsAutoLogged();
+  private ControllerIO controllerIO;
+  private ControllerIOInputsAutoLogged controllerInputs = new ControllerIOInputsAutoLogged();
+
   private GenericHID m_hid;
   private Deadband m_deadband = new Deadband(DEADBAND_LIMIT);
   private SquaredInput m_squaredInput = new SquaredInput(DEADBAND_LIMIT);
@@ -29,10 +31,11 @@ public class FilteredController implements ControllerIO {
     m_useSquaredInput = false;
   }
 
-  public FilteredController(int port, boolean useDeadband, boolean useSquaredInput) {
+  public FilteredController(int port, boolean useDeadband, boolean useSquaredInput, ControllerIO controllerIO) {
     this(port);
     this.m_useDeadband = useDeadband;
     this.m_useSquaredInput = useSquaredInput;
+    this.controllerIO = controllerIO;
   }
 
   public void setAllianceMultiplier() {
@@ -84,7 +87,7 @@ public class FilteredController implements ControllerIO {
   }
 
   public void periodic() {
-    this.updateInputs(inputs);
+    this.updateInputs(controllerInputs);
   }
 
   public interface Button {
@@ -118,11 +121,12 @@ public class FilteredController implements ControllerIO {
 
   @Override
   public void updateInputs(ControllerIOInputs inputs) {
-    for (int i = m_hid.getAxisCount(); i > 0; i--) {
+    for (int i = m_hid.getAxisCount() - 1; i > 0; i--) {
       inputs.m_axisValues[i] = m_hid.getRawAxis(i);
     }
+    System.out.println(m_hid.getRawAxis(0));
 
-    for (int i = m_hid.getButtonCount(); i > 0; i--) {
+    for (int i = m_hid.getButtonCount() - 1; i > 0; i--) {
       inputs.m_buttonValues[i] = m_hid.getRawButton(i);
       inputs.m_buttonPressedValues[i] = m_hid.getRawButtonPressed(i);
       inputs.m_buttonReleasedValues[i] = m_hid.getRawButtonReleased(i);
