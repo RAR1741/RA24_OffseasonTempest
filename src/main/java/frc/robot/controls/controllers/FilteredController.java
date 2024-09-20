@@ -31,12 +31,18 @@ public class FilteredController implements ControllerIO {
     m_useSquaredInput = false;
   }
 
-  public FilteredController(int port, boolean useDeadband, boolean useSquaredInput, ControllerIO controllerIO) {
+  public FilteredController(int port, boolean useDeadband, boolean useSquaredInput) {
     this(port);
     this.m_useDeadband = useDeadband;
     this.m_useSquaredInput = useSquaredInput;
-    this.controllerIO = controllerIO;
   }
+
+  // public FilteredController(int port, boolean useDeadband, boolean useSquaredInput, ControllerIO controllerIO) {
+  //   this(port);
+  //   this.m_useDeadband = useDeadband;
+  //   this.m_useSquaredInput = useSquaredInput;
+  //   this.controllerIO = controllerIO;
+  // }
 
   public void setAllianceMultiplier() {
     if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
@@ -47,7 +53,7 @@ public class FilteredController implements ControllerIO {
   }
 
   public double getFilteredAxis(int axis) {
-    double value = inputs.m_axisValues[axis];
+    double value = controllerInputs.m_axisValues[axis];
 
     // Apply squared input, if requested
     if (m_useSquaredInput) {
@@ -63,19 +69,19 @@ public class FilteredController implements ControllerIO {
   }
 
   public boolean getButton(int button) {
-    return inputs.m_buttonValues[button];
+    return controllerInputs.m_buttonValues[button];
   }
 
   public boolean getButtonPressed(int button) {
-    return inputs.m_buttonReleasedValues[button];
+    return controllerInputs.m_buttonReleasedValues[button];
   }
 
   public boolean getButtonReleased(int button) {
-    return inputs.m_buttonReleasedValues[button];
+    return controllerInputs.m_buttonReleasedValues[button];
   }
 
   public int getPOV() {
-    return inputs.m_dPadDir;
+    return controllerInputs.m_dPadDir;
   }
 
   public boolean getHatPressed(int direction) {
