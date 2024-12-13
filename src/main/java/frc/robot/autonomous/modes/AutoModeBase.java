@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 import frc.robot.autonomous.tasks.Task;
+import frc.robot.subsystems.drivetrain.RAROdometry;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 
 public abstract class AutoModeBase {
@@ -16,9 +17,9 @@ public abstract class AutoModeBase {
 
     // Reset the gyro and set the starting position
     Pose2d startingPosition = getStartingPosition();
-    SwerveDrive swerve = SwerveDrive.getInstance();
-    swerve.setGyroAngleAdjustment(startingPosition.getRotation().getDegrees());
-    swerve.resetOdometry(startingPosition);
+    RAROdometry odometry = RAROdometry.getInstance();
+    odometry.setGyroAngleAdjustment(startingPosition.getRotation().getDegrees());
+    odometry.resetOdometry(startingPosition);
   }
 
   public Task getNextTask() {

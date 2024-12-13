@@ -23,6 +23,9 @@ public class SwerveDrive extends Subsystem {
 
   private static SwerveDrive m_swerve = null;
 
+  private final RAROdometry m_odometry = RAROdometry.getInstance();
+  private final AHRS m_gyro = m_odometry.getGyro();
+
   // Robot "forward" is +x
   // Robot "left" is +y
   // Robot "clockwise" is -z
@@ -50,25 +53,8 @@ public class SwerveDrive extends Subsystem {
           Constants.SwerveDrive.Turn.k_BLOffset, "BL") // 3
   };
 
-  private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
-  // private final Limelight m_limelight = Limelight.getInstance();
-
   private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
       m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
-
-  private SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
-      m_kinematics,
-      m_gyro.getRotation2d(),
-      new SwerveModulePosition[] {
-          m_modules[Module.FRONT_LEFT].getPosition(),
-          m_modules[Module.FRONT_RIGHT].getPosition(),
-          m_modules[Module.BACK_LEFT].getPosition(),
-          m_modules[Module.BACK_RIGHT].getPosition()
-      },
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0)) // TODO: CLARIFY THIS WORKS
-  );
-
-  // private SwerveDrivePoseEstimator poseEstimator2 = new SwerveDrivePoseEstimator(m_kin)
 
   public static SwerveDrive getInstance() {
     if (m_swerve == null) {
@@ -89,72 +75,10 @@ public class SwerveDrive extends Subsystem {
     }
   }
 
-  public void reset() {
-    resetGyro();
-    resetOdometry(new Pose2d(0, 0, new Rotation2d(0)));
-  }
-
-  /**
-   * Calls the NavX reset function, resetting the Z angle to 0
-   */
-  public void resetGyro() {
-    m_gyro.reset();
-    m_gyro.setAngleAdjustment(0.0);
-  }
-
-  public AHRS getGyro() {
-    return m_gyro;
-  }
-
-  public void setGyroAngleAdjustment(double angle) {
-    m_gyro.setAngleAdjustment(angle);
-  }
-
-  public Rotation2d getRotation2d() {
-    return m_gyro.getRotation2d();
-  }
-
   public void clearTurnPIDAccumulation() {
     for (SwerveModule module : m_modules) {
       module.clearTurnPIDAccumulation();
     }
-  }
-
-  public void setPose(Pose2d pose) {
-    m_poseEstimator.resetPosition(
-        m_gyro.getRotation2d(),
-        new SwerveModulePosition[] {
-            m_modules[Module.FRONT_LEFT].getPosition(),
-            m_modules[Module.FRONT_RIGHT].getPosition(),
-            m_modules[Module.BACK_LEFT].getPosition(),
-            m_modules[Module.BACK_RIGHT].getPosition()
-        },
-        pose);
-  }
-
-  public void resetOdometry(Pose2d pose) {
-    for (SwerveModule module : m_modules) {
-      module.resetDriveEncoder();
-    }
-
-    // We're manually setting the drive encoder positions to 0, since we
-    // just reset them, but the encoder isn't reporting 0 yet.
-    m_poseEstimator = new SwerveDrivePoseEstimator(
-        m_kinematics,
-        m_gyro.getRotation2d(),
-        new SwerveModulePosition[] {
-            new SwerveModulePosition(0.0,
-                Rotation2d.fromRotations(m_modules[Module.FRONT_LEFT].getTurnPosition())),
-            new SwerveModulePosition(0.0,
-                Rotation2d.fromRotations(m_modules[Module.FRONT_RIGHT].getTurnPosition())),
-            new SwerveModulePosition(0.0,
-                Rotation2d.fromRotations(m_modules[Module.BACK_LEFT].getTurnPosition())),
-            new SwerveModulePosition(0.0,
-                Rotation2d.fromRotations(m_modules[Module.BACK_RIGHT].getTurnPosition())),
-        },
-        new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-
-    setPose(pose);
   }
 
   /**
@@ -196,8 +120,10 @@ public class SwerveDrive extends Subsystem {
     }
   }
 
-  public Pose2d getPose() {
-    return m_poseEstimator.getEstimatedPosition();
+  public void resetDriveEncoders() {
+    for (SwerveModule module : m_modules) {
+      module.resetDriveEncoder();
+    }
   }
 
   @Override
@@ -237,6 +163,28 @@ public class SwerveDrive extends Subsystem {
     }
 
     return desiredStates;
+  }
+
+  public SwerveDriveKinematics getKinematics() {
+    return m_kinematics;
+  }
+
+  public SwerveModule getModule(int module) {
+    switch(module) {
+      case Module.FRONT_LEFT -> {
+        return m_modules[Module.FRONT_LEFT];
+      }
+      case Module.FRONT_RIGHT -> {
+        return m_modules[Module.FRONT_LEFT];
+      }
+      case Module.BACK_LEFT -> {
+        return m_modules[Module.FRONT_LEFT];
+      }
+      case Module.BACK_RIGHT -> {
+        return m_modules[Module.FRONT_LEFT];
+      }
+    }
+    return null;
   }
 
   // @Override
@@ -282,5 +230,11 @@ public class SwerveDrive extends Subsystem {
     int FRONT_RIGHT = 1;
     int BACK_RIGHT = 2;
     int BACK_LEFT = 3;
+  }
+
+  @Override
+  public void reset() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'reset'");
   }
 }

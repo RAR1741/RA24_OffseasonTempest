@@ -4,9 +4,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.subsystems.drivetrain.RAROdometry;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 
 public class DriveForwardTask extends Task {
+  private RAROdometry m_odometry;
   private SwerveDrive m_swerve;
   private double m_targetDistance;
   private double m_speed;
@@ -16,6 +18,7 @@ public class DriveForwardTask extends Task {
   private double m_lastTime = 0;
 
   public DriveForwardTask(double distance, double speed) {
+    m_odometry = RAROdometry.getInstance();
     m_swerve = SwerveDrive.getInstance();
     m_targetDistance = distance;
     m_speed = speed;
@@ -26,12 +29,12 @@ public class DriveForwardTask extends Task {
     m_runningTimer.reset();
     m_runningTimer.start();
 
-    m_startPose = m_swerve.getPose();
+    m_startPose = m_odometry.getPose();
   }
 
   @Override
   public void update() {
-    Pose2d currentPose = m_swerve.getPose();
+    Pose2d currentPose = m_odometry.getPose();
 
     double xSpeed = m_speed * Math.cos(currentPose.getRotation().getRadians());
     double ySpeed = m_speed * Math.sin(currentPose.getRotation().getRadians());
@@ -43,7 +46,7 @@ public class DriveForwardTask extends Task {
   public void updateSim() {
     // This simulates the robot driving in the positive x direction
     if (!RobotBase.isReal()) {
-      Pose2d currentPose = m_swerve.getPose();
+      Pose2d currentPose = m_odometry.getPose();
 
       // Move "forward", based on the robot's current rotation
       double newX = currentPose.getX()
@@ -56,14 +59,14 @@ public class DriveForwardTask extends Task {
           newY,
           currentPose.getRotation());
 
-      m_swerve.setPose(newPose);
+      m_odometry.setPose(newPose);
       m_lastTime = m_runningTimer.get();
     }
   }
 
   @Override
   public boolean isFinished() {
-    Pose2d relativePose = m_startPose.relativeTo(m_swerve.getPose());
+    Pose2d relativePose = m_startPose.relativeTo(m_odometry.getPose());
     return Math.hypot(relativePose.getX(), relativePose.getY()) >= m_targetDistance;
   }
 
