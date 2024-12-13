@@ -4,27 +4,21 @@ import java.util.ArrayList;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants;
 import frc.robot.subsystems.Subsystem;
 
 public class SwerveDrive extends Subsystem {
-  public SwerveDrive() {
+  private static SwerveDrive m_swerve = null;
+  // private final RAROdometry m_odometry= RAROdometry.getInstance();
+  // private final AHRS m_gyro = m_odometry.getGyro();
+  
+  private SwerveDrive() {
     super("SwerveDrive");
   }
-
-  private static SwerveDrive m_swerve = null;
-
-  private final RAROdometry m_odometry = RAROdometry.getInstance();
-  private final AHRS m_gyro = m_odometry.getGyro();
 
   // Robot "forward" is +x
   // Robot "left" is +y
@@ -93,7 +87,7 @@ public class SwerveDrive extends Subsystem {
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, RAROdometry.getInstance().getGyro().getRotation2d())
             : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
     double maxBoostSpeed = Constants.SwerveDrive.k_maxSpeed * Constants.SwerveDrive.k_boostScaler;
@@ -107,7 +101,7 @@ public class SwerveDrive extends Subsystem {
   public void pointModules(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, RAROdometry.getInstance().getGyro().getRotation2d())
             : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
     // Zero out the speed component of each swerve module state

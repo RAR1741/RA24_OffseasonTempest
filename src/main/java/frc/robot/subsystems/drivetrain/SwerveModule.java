@@ -8,6 +8,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
@@ -26,10 +28,10 @@ import frc.robot.wrappers.RARSparkMax;
 
 public class SwerveModule {
   private final TalonFX m_driveMotor;
+  private final TalonFXConfiguration m_driveConfiguration;
   private final RARSparkMax m_turnMotor;
   private final RelativeEncoder m_turningRelEncoder;
   private final SparkAbsoluteEncoder m_turningAbsEncoder;
-  private final SimpleMotorFeedforward m_drivingFeedForward;
   private final SparkPIDController m_turningPIDController;
 
   private final PeriodicIO m_periodicIO = new PeriodicIO();
@@ -48,13 +50,18 @@ public class SwerveModule {
     m_turningOffset = turningOffset;
     m_moduleName = moduleName;
 
-    m_drivingFeedForward = new SimpleMotorFeedforward(
-        Constants.SwerveDrive.Drive.k_S,
-        Constants.SwerveDrive.Drive.k_V,
-        Constants.SwerveDrive.Drive.k_A);
-
     m_driveMotor = new TalonFX(driveMotorChannel);
     m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
+    m_driveConfiguration = new TalonFXConfiguration();
+
+    m_driveConfiguration.Feedback.SensorToMechanismRatio = Constants.SwerveDrive.Drive.k_driveGearRatio;
+
+    m_driveConfiguration.Slot0.kP = Constants.SwerveDrive.Drive.k_P;
+    m_driveConfiguration.Slot0.kI = Constants.SwerveDrive.Drive.k_I;
+    m_driveConfiguration.Slot0.kD = Constants.SwerveDrive.Drive.k_D;
+    m_driveConfiguration.Slot0.kS = Constants.SwerveDrive.Drive.k_S;
+    m_driveConfiguration.Slot0.kV = Constants.SwerveDrive.Drive.k_V;
+    m_driveConfiguration.Slot0.kA = Constants.SwerveDrive.Drive.k_A;
     
     // m_driveEncoder.setVelocityConversionFactor(Units.inchesToMeters(
     //     (Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI) / Constants.SwerveDrive.Drive.k_driveGearRatio) / 60.0);
@@ -76,8 +83,6 @@ public class SwerveModule {
     m_turningPIDController.setP(Constants.SwerveDrive.Drive.k_P);
     m_turningPIDController.setI(Constants.SwerveDrive.Drive.k_I);
     m_turningPIDController.setD(Constants.SwerveDrive.Drive.k_D);
-    // m_turningPIDController.setIZone(Constants.SwerveDrive.Drive.k_driveIZone);
-    // m_turningPIDController.setFF(Constants.SwerveDrive.Drive.k_driveFF);
 
     m_turningPIDController.setPositionPIDWrappingEnabled(true);
     m_turningPIDController.setPositionPIDWrappingMinInput(0.0);
@@ -96,7 +101,6 @@ public class SwerveModule {
             / Constants.SwerveDrive.Drive.k_driveGearRatio;
     configurator.apply(configuration);
 
-    // m_driveMotor.burnFlash();
     m_turnMotor.burnFlash();
   }
 
@@ -173,9 +177,10 @@ public class SwerveModule {
   public void periodic() {
     if (m_periodicIO.shouldChangeState) {
       if (!m_moduleDisabled) {
-        double feedforward = m_drivingFeedForward.calculate(getDriveTargetVelocity());
+        double wheelCirc = Constants.SwerveDrive.k_wheelRadiusIn * 2.0d * Math.PI;
 
-        // m_drivePIDController.setReference(getDriveTargetVelocity(), ControlType.kVelocity, 0, feedforward);
+        VelocityVoltage m_request = new VelocityVoltage(getDriveTargetVelocity() / wheelCirc).withSlot(0);
+        m_driveMotor.setControl(m_request);
         m_turningPIDController.setReference(getTurnTargetAngleRadians(), ControlType.kPosition);
       } else {
         DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);

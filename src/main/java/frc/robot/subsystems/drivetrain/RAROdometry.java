@@ -5,17 +5,16 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.SPI;
-import frc.robot.Constants;
 import frc.robot.RobotTelemetry;
 import frc.robot.subsystems.Subsystem;
 
 public class RAROdometry extends Subsystem {
   private static RAROdometry m_instance;
-  private final SwerveDrive m_swerve;
   private final AHRS m_gyro;
+
+  private final SwerveDrive m_swerve = SwerveDrive.getInstance();
 
   private SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -23,7 +22,6 @@ public class RAROdometry extends Subsystem {
     super("Odometry");
 
     m_gyro = new AHRS(SPI.Port.kMXP);
-    m_swerve = SwerveDrive.getInstance();
 
     m_poseEstimator = new SwerveDrivePoseEstimator(
       m_swerve.getKinematics(),
@@ -35,7 +33,7 @@ public class RAROdometry extends Subsystem {
           m_swerve.getModule(SwerveDrive.Module.BACK_RIGHT).getPosition()
       },
       new Pose2d(0, 0, Rotation2d.fromDegrees(0)) // TODO: CLARIFY THIS WORKS
-  );
+    );
   }
 
   public static RAROdometry getInstance() {

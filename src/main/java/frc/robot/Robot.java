@@ -21,6 +21,8 @@ import frc.robot.controls.controllers.FilteredController;
 import frc.robot.controls.controllers.OperatorController;
 import frc.robot.simulation.Field;
 import frc.robot.subsystems.Subsystem;
+import frc.robot.subsystems.drivetrain.RAROdometry;
+import frc.robot.subsystems.drivetrain.SwerveDrive;
 
 public class Robot extends LoggedRobot {
   private final DriverController m_driverController = new DriverController(0, true, true);
@@ -34,7 +36,8 @@ public class Robot extends LoggedRobot {
   // Robot subsystems
   private List<Subsystem> m_allSubsystems = new ArrayList<>();
   private List<FilteredController> m_allControllers = new ArrayList<>();
-  // public final SwerveDrive m_swerve = new SwerveDrive();
+  private final SwerveDrive m_swerve = SwerveDrive.getInstance();
+  // private final RAROdometry m_odometry = RAROdometry.getInstance();
   private Task m_currentTask;
   private AutoRunner m_autoRunner = AutoRunner.getInstance();
 
@@ -74,7 +77,7 @@ public class Robot extends LoggedRobot {
     // Camera server
     m_camera = CameraServer.startAutomaticCapture();
 
-    // m_allSubsystems.add(m_swerve);
+    m_allSubsystems.add(m_swerve);
 
     m_allControllers.add(m_driverController);
     // m_allControllers.add(m_operatorController);
@@ -163,7 +166,7 @@ public class Robot extends LoggedRobot {
     }
     rot *= slowScaler * boostScaler;
 
-    // m_swerve.drive(xSpeed, ySpeed, rot, true);
+    m_swerve.drive(xSpeed, ySpeed, rot, true);
 
     if (m_driverController.getWantsResetGyro()) {
       // m_swerve.resetGyro();
