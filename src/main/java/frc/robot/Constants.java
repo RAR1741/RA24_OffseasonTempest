@@ -50,15 +50,15 @@ public final class Constants {
       // These values were obtained via SysId
       // In "Feedback Analysis" section, we set Measurement Delay to 58 ms, which was
       // pulled from the "Feedforward Analysis" Velocity Measurement Delay
-      public static final double k_P = 0.86853;
+      public static final double k_P = 0.0;
       public static final double k_I = 0.0;
       public static final double k_D = 0.0;
 
-      public static final double k_S = 0.25043;
-      public static final double k_V = 3.0125;
-      public static final double k_A = 0.38005;
+      public static final double k_S = 0.0; //0.25043;
+      public static final double k_V = 0.0; //3.0125;
+      public static final double k_A = 0.0; //0.38005;
 
-      public static final double k_driveGearRatio = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
+      public static final double k_driveGearRatio = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0); //(50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
       public static final double k_driveEncPerRot = 2048.0;
       public static final double k_driveEncPerSec = 2048.0 / 10.0; // Encoder reports 2048 Encoder counter per 100 ms
     }
@@ -71,12 +71,14 @@ public final class Constants {
       public static final double k_BLOffset = 0.754982;
       public static final double k_BROffset = 0.103446;
 
-      public static final double k_P = 20.0;
-      public static final double k_I = 0.1;
-      public static final double k_D = 0.01;
+      public static final double k_gearRatio = 7.0 / 150.0;
 
-      public static final double k_S = 1;
-      public static final double k_V = 0.5;
+      public static final double k_P = 0.0;
+      public static final double k_I = 0.0;
+      public static final double k_D = 0.0;
+
+      public static final double k_S = 0.0;
+      public static final double k_V = 0.0;
       public static final double k_A = 0.0;
 
       public static final int k_FLMotorId = 9;

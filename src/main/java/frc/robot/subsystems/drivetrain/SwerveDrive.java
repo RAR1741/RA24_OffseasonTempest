@@ -1,6 +1,9 @@
 package frc.robot.subsystems.drivetrain;
 
 import java.util.ArrayList;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.kauailabs.navx.frc.AHRS;
 
@@ -137,28 +140,6 @@ public class SwerveDrive extends Subsystem {
   public void writePeriodicOutputs() {
   }
 
-  private ArrayList<Double> getCurrentStates() {
-    ArrayList<Double> currentStates = new ArrayList<>();
-
-    for (SwerveModule module : m_modules) {
-      currentStates.add(module.getTurnPosition() * 360);
-      currentStates.add(module.getDriveVelocity());
-    }
-
-    return currentStates;
-  }
-
-  private ArrayList<Double> getDesiredStates() {
-    ArrayList<Double> desiredStates = new ArrayList<>();
-
-    for (SwerveModule module : m_modules) {
-      desiredStates.add(module.getDesiredState().angle.getDegrees());
-      desiredStates.add(module.getDesiredState().speedMetersPerSecond);
-    }
-
-    return desiredStates;
-  }
-
   public SwerveDriveKinematics getKinematics() {
     return m_kinematics;
   }
@@ -217,6 +198,61 @@ public class SwerveDrive extends Subsystem {
   // SmartDashboard.putNumberArray("Drivetrain/Pose",
   // new double[] { getPose().getX(), getPose().getY(),
   // getPose().getRotation().getDegrees() });
+  // }
+
+  // Logged
+  // @AutoLogOutput
+  // public Rotation2d getRotation2d() {
+  //   return m_poseEstimator.getEstimatedPosition().getRotation();
+  // }
+
+  @AutoLogOutput
+  private SwerveModuleState[] getCurrentStates() {
+    SwerveModuleState[] currentStates = {
+        m_modules[Module.FRONT_LEFT].getState(),
+        m_modules[Module.FRONT_RIGHT].getState(),
+        m_modules[Module.BACK_RIGHT].getState(),
+        m_modules[Module.BACK_LEFT].getState()
+    };
+
+    return currentStates;
+  }
+
+  @AutoLogOutput
+  private SwerveModuleState[] getDesiredStates() {
+    SwerveModuleState[] desiredStates = {
+        m_modules[Module.FRONT_LEFT].getDesiredState(),
+        m_modules[Module.FRONT_RIGHT].getDesiredState(),
+        m_modules[Module.BACK_RIGHT].getDesiredState(),
+        m_modules[Module.BACK_LEFT].getDesiredState()
+    };
+
+    return desiredStates;
+  }
+
+  // @AutoLogOutput
+  // public boolean hasSetPose() {
+  //   return m_hasSetPose;
+  // }
+
+  // @AutoLogOutput
+  // private double getGyroYaw() {
+  //   return m_gyro.getRotation2d().getDegrees();
+  // }
+
+  // @AutoLogOutput
+  // private double getGyroPitch() {
+  //   return m_gyro.getPitch();
+  // }
+
+  // @AutoLogOutput
+  // public Pose2d getPose() {
+  //   return m_poseEstimator.getEstimatedPosition();
+  // }
+
+  // @AutoLogOutput
+  // public double getNavXTimestamp() {
+  //   return (double) m_gyro.getLastSensorTimestamp();
   // }
 
   public interface Module {

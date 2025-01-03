@@ -55,6 +55,7 @@ public class SwerveModule {
     m_driveConfiguration = new TalonFXConfiguration();
 
     m_driveConfiguration.Feedback.SensorToMechanismRatio = Constants.SwerveDrive.Drive.k_driveGearRatio;
+    // m_driveConfiguration.Feedback.RotorToSensorRatio = 0.0f; TODO: DO THIS PLEASE GOD I HOPE
 
     m_driveConfiguration.Slot0.kP = Constants.SwerveDrive.Drive.k_P;
     m_driveConfiguration.Slot0.kI = Constants.SwerveDrive.Drive.k_I;
@@ -76,8 +77,8 @@ public class SwerveModule {
     m_turningAbsEncoder = m_turnMotor.getAbsoluteEncoder();
 
     m_turningRelEncoder = m_turnMotor.getEncoder();
-    // m_turningRelEncoder.setPositionConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI);
-    // m_turningRelEncoder.setVelocityConversionFactor(Constants.SwerveDrive.Turn.k_turnGearRatio * 2.0 * Math.PI / 60.0);
+    m_turningRelEncoder.setPositionConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI);
+    m_turningRelEncoder.setVelocityConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI / 60.0);
 
     m_turningPIDController = m_turnMotor.getPIDController();
     m_turningPIDController.setP(Constants.SwerveDrive.Drive.k_P);
@@ -91,15 +92,8 @@ public class SwerveModule {
         Constants.SwerveDrive.Turn.k_turningMinOutput,
         Constants.SwerveDrive.Turn.k_turningMaxOutput);
 
-    TalonFXConfigurator configurator = m_driveMotor.getConfigurator();
-    TalonFXConfiguration configuration = new TalonFXConfiguration();
-    configuration.Slot0.kP = Constants.SwerveDrive.Drive.k_P;
-    configuration.Slot0.kI = Constants.SwerveDrive.Drive.k_P;
-    configuration.Slot0.kD = Constants.SwerveDrive.Drive.k_P;
-    // configuration.Feedback.RotorToSensorRatio = 
-    configuration.Feedback.SensorToMechanismRatio = Units.inchesToMeters(Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI)
-            / Constants.SwerveDrive.Drive.k_driveGearRatio;
-    configurator.apply(configuration);
+    TalonFXConfigurator driveConfigurator = m_driveMotor.getConfigurator();
+    driveConfigurator.apply(m_driveConfiguration);
 
     m_turnMotor.burnFlash();
   }
@@ -176,20 +170,20 @@ public class SwerveModule {
 
   public void periodic() {
     if (m_periodicIO.shouldChangeState) {
-      if (!m_moduleDisabled) {
-        double wheelCirc = Constants.SwerveDrive.k_wheelRadiusIn * 2.0d * Math.PI;
+      // if (!m_moduleDisabled) {
+      double wheelCirc = Constants.SwerveDrive.k_wheelRadiusIn * 2.0d * Math.PI; //TODO: Move this
 
-        VelocityVoltage m_request = new VelocityVoltage(getDriveTargetVelocity() / wheelCirc).withSlot(0);
-        m_driveMotor.setControl(m_request);
-        m_turningPIDController.setReference(getTurnTargetAngleRadians(), ControlType.kPosition);
-      } else {
-        DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);
-        m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
-        m_turnMotor.setIdleMode(IdleMode.kCoast);
+      VelocityVoltage m_request = new VelocityVoltage(getDriveTargetVelocity() / wheelCirc).withSlot(0);
+      m_driveMotor.setControl(m_request);
+      m_turningPIDController.setReference(getTurnTargetAngleRadians(), ControlType.kPosition);
+      // } else {
+      //   DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);
+      //   m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
+      //   m_turnMotor.setIdleMode(IdleMode.kCoast);
  
-        // m_drivePIDController.setReference(0, ControlType.kVoltage);
-        m_turningPIDController.setReference(0, ControlType.kVoltage);
-      }
+      //   // m_drivePIDController.setReference(0, ControlType.kVoltage);
+      //   m_turningPIDController.setReference(0, ControlType.kVoltage);
+      // }
 
       m_periodicIO.shouldChangeState = false;
     }

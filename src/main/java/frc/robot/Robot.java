@@ -44,11 +44,11 @@ public class Robot extends LoggedRobot {
   // The mere instantiation of this object will cause the compressor to start
   // running. We don't need to do anything else with it, so we'll suppress the
   // warning.
-  @SuppressWarnings("unused")
-  private final Compressor m_compressor = new Compressor(PneumaticsModuleType.REVPH);
+  // @SuppressWarnings("unused")
+  // private final Compressor m_compressor = new Compressor(PneumaticsModuleType.REVPH);
 
-  @SuppressWarnings("unused")
-  private UsbCamera m_camera;
+  // @SuppressWarnings("unused")
+  // private UsbCamera m_camera;
 
   // Auto things
   AutoChooser m_autoChooser = new AutoChooser();
@@ -61,7 +61,7 @@ public class Robot extends LoggedRobot {
 
     // Initialize on-board logging
     DataLogManager.start();
-    System.out.println("Logging initialized. Fard.");
+    RobotTelemetry.print("Logging Initialized. Fard.");
 
     // Set up demo mode picker
     if (!Preferences.containsKey("demoMode")) {
@@ -75,7 +75,7 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData("Field", m_field);
 
     // Camera server
-    m_camera = CameraServer.startAutomaticCapture();
+    // m_camera = CameraServer.startAutomaticCapture();
 
     m_allSubsystems.add(m_swerve);
 
@@ -85,7 +85,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    m_allControllers.forEach(controller -> controller.periodic());
     m_allSubsystems.forEach(subsystem -> subsystem.periodic());
     m_allSubsystems.forEach(subsystem -> subsystem.writePeriodicOutputs());
     m_allSubsystems.forEach(subsystem -> subsystem.writeToLog());
@@ -167,10 +166,6 @@ public class Robot extends LoggedRobot {
     rot *= slowScaler * boostScaler;
 
     m_swerve.drive(xSpeed, ySpeed, rot, true);
-
-    if (m_driverController.getWantsResetGyro()) {
-      // m_swerve.resetGyro();
-    }
   }
 
   @Override

@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.controls.Deadband;
 import frc.robot.controls.SquaredInput;
 
-public class FilteredController implements ControllerIO {
+public class FilteredController {
   private static final double DEADBAND_LIMIT = 0.03;
 
   private boolean m_useDeadband;
@@ -92,10 +92,6 @@ public class FilteredController implements ControllerIO {
     return hatButtons[direction].get();
   }
 
-  public void periodic() {
-    this.updateInputs(controllerInputs);
-  }
-
   public interface Button {
     int A = 1;
     int B = 2;
@@ -123,21 +119,5 @@ public class FilteredController implements ControllerIO {
     int DOWN = 1;
     int LEFT = 2;
     int RIGHT = 3;
-  }
-
-  @Override
-  public void updateInputs(ControllerIOInputs inputs) {
-    for (int i = m_hid.getAxisCount() - 1; i > 0; i--) {
-      inputs.m_axisValues[i] = m_hid.getRawAxis(i);
-    }
-    System.out.println(m_hid.getRawAxis(0));
-
-    for (int i = m_hid.getButtonCount() - 1; i > 0; i--) {
-      inputs.m_buttonValues[i] = m_hid.getRawButton(i);
-      inputs.m_buttonPressedValues[i] = m_hid.getRawButtonPressed(i);
-      inputs.m_buttonReleasedValues[i] = m_hid.getRawButtonReleased(i);
-    }
-
-    inputs.m_dPadDir = m_hid.getPOV();
   }
 }
