@@ -86,6 +86,11 @@ public final class Constants {
       public static final int k_BLMotorId = 11;
       public static final int k_BRMotorId = 12;
 
+      public static final int k_FLAbsId = 99;
+      public static final int k_FRAbsId = 99;
+      public static final int k_BLAbsId = 99;
+      public static final int k_BRAbsId = 99;
+
       public static final double k_turningMaxOutput = 1.0;
       public static final double k_turningMinOutput = -1.0;
     }

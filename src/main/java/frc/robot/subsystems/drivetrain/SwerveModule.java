@@ -8,36 +8,31 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import frc.robot.Helpers;
 import frc.robot.wrappers.RARSparkMax;
+import frc.robot.wrappers.TalonSRXMagEncoder;
 
 public class SwerveModule {
   private final TalonFX m_driveMotor;
   private final TalonFXConfiguration m_driveConfiguration;
   private final RARSparkMax m_turnMotor;
   private final RelativeEncoder m_turningRelEncoder;
-  private final SparkAbsoluteEncoder m_turningAbsEncoder;
+  private final TalonSRXMagEncoder m_turningAbsEncoder;
   private final SparkPIDController m_turningPIDController;
 
   private final PeriodicIO m_periodicIO = new PeriodicIO();
 
   private final double m_turningOffset;
-  private final String m_moduleName;
 
   private static class PeriodicIO {
     SwerveModuleState desiredState = new SwerveModuleState();
@@ -46,9 +41,8 @@ public class SwerveModule {
 
   private boolean m_moduleDisabled = false;
 
-  public SwerveModule(int driveMotorChannel, int turningMotorChannel, double turningOffset, String moduleName) {
+  public SwerveModule(int driveMotorChannel, int turningMotorChannel, int turningEncoderChannel, double turningOffset) {
     m_turningOffset = turningOffset;
-    m_moduleName = moduleName;
 
     m_driveMotor = new TalonFX(driveMotorChannel);
     m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
@@ -63,9 +57,7 @@ public class SwerveModule {
     m_driveConfiguration.Slot0.kS = Constants.SwerveDrive.Drive.k_S;
     m_driveConfiguration.Slot0.kV = Constants.SwerveDrive.Drive.k_V;
     m_driveConfiguration.Slot0.kA = Constants.SwerveDrive.Drive.k_A;
-    
-    // m_driveEncoder.setVelocityConversionFactor(Units.inchesToMeters(
-    //     (Constants.SwerveDrive.k_wheelRadiusIn * 2.0 * Math.PI) / Constants.SwerveDrive.Drive.k_driveGearRatio) / 60.0);
+
     // m_driveMotor.setSmartCurrentLimit(Constants.Drivetrain.Drive.k_driveCurrentLimit);
 
     m_turnMotor = new RARSparkMax(turningMotorChannel, MotorType.kBrushless);
@@ -74,7 +66,7 @@ public class SwerveModule {
     m_turnMotor.setInverted(true);
     // m_turnMotor.setSmartCurrentLimit(Constants.SwerveDrive.Drive.k_turnCurrentLimit);
 
-    m_turningAbsEncoder = m_turnMotor.getAbsoluteEncoder();
+    m_turningAbsEncoder = new TalonSRXMagEncoder(turningEncoderChannel);
 
     m_turningRelEncoder = m_turnMotor.getEncoder();
     m_turningRelEncoder.setPositionConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI);
@@ -222,7 +214,7 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Abs/getTurnPosition")
   public double getAsbEncoderPosition() {
-    return m_turningAbsEncoder.getPosition() - m_turningOffset;
+    return m_turningAbsEncoder.getAbsolutePosition() - m_turningOffset;
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Temperature")
@@ -252,7 +244,7 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Turn/absPosition")
   public double getTurnAbsPosition() {
-    return Helpers.modRotations(m_turningAbsEncoder.getPosition() - m_turningOffset);
+    return Helpers.modRotations(m_turningAbsEncoder.getAbsolutePosition() - m_turningOffset);
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Turn/Velocity")

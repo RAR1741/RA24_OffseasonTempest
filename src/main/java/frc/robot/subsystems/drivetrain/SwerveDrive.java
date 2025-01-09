@@ -38,16 +38,20 @@ public class SwerveDrive extends Subsystem {
   private static final SwerveModule[] m_modules = {
       new SwerveModule(Constants.SwerveDrive.Drive.k_FLMotorId,
           Constants.SwerveDrive.Turn.k_FLMotorId,
-          Constants.SwerveDrive.Turn.k_FLOffset, "FL"), // 0
+          Constants.SwerveDrive.Turn.k_FLAbsId,
+          Constants.SwerveDrive.Turn.k_FLOffset), // 0
       new SwerveModule(Constants.SwerveDrive.Drive.k_FRMotorId,
           Constants.SwerveDrive.Turn.k_FRMotorId,
-          Constants.SwerveDrive.Turn.k_FROffset, "FR"), // 1
+          Constants.SwerveDrive.Turn.k_FRAbsId,
+          Constants.SwerveDrive.Turn.k_FROffset), // 1
       new SwerveModule(Constants.SwerveDrive.Drive.k_BRMotorId,
           Constants.SwerveDrive.Turn.k_BRMotorId,
-          Constants.SwerveDrive.Turn.k_BROffset, "BR"), // 2
+          Constants.SwerveDrive.Turn.k_BRAbsId,
+          Constants.SwerveDrive.Turn.k_BROffset), // 2
       new SwerveModule(Constants.SwerveDrive.Drive.k_BLMotorId,
           Constants.SwerveDrive.Turn.k_BLMotorId,
-          Constants.SwerveDrive.Turn.k_BLOffset, "BL") // 3
+          Constants.SwerveDrive.Turn.k_BLAbsId,
+          Constants.SwerveDrive.Turn.k_BLOffset) // 3
   };
 
   private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
