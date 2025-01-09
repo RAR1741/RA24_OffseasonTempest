@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.revrobotics.CANSparkBase;
+import com.revrobotics.spark.SparkMax;
 
 public class Helpers {
   public static double modRotations(double input) {

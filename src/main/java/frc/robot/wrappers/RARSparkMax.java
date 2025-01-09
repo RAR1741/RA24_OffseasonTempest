@@ -1,8 +1,9 @@
 package frc.robot.wrappers;
 
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkMax;
+// import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-public class RARSparkMax extends CANSparkMax {
+public class RARSparkMax extends SparkMax {
   public RARSparkMax(int deviceID, MotorType type) {
     super(deviceID, type);
 
@@ -19,9 +20,9 @@ public class RARSparkMax extends CANSparkMax {
      * These status frames are fine to occur less often, every second (1000ms) or
      * so.
      */
-    setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000); // Analog Sensor
-    setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000); // Alternative Encoder
-    setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000); // Duty Cycle Encoder
-    setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000); // Duty Cycle Encoder
+    // setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000); // Analog Sensor
+    // setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000); // Alternative Encoder
+    // setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000); // Duty Cycle Encoder
+    // setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000); // Duty Cycle Encoder
   }
 }

@@ -1,8 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -12,7 +12,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkClosedLoopController;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -172,7 +172,7 @@ public class SwerveModule {
       //   DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);
       //   m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
       //   m_turnMotor.setIdleMode(IdleMode.kCoast);
- 
+
       //   // m_drivePIDController.setReference(0, ControlType.kVoltage);
       //   m_turningPIDController.setReference(0, ControlType.kVoltage);
       // }
