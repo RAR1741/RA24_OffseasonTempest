@@ -1,11 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
-import java.util.ArrayList;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;

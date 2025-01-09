@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase;
 
 public class Helpers {
   public static double modRotations(double input) {
@@ -27,7 +27,7 @@ public class Helpers {
     return input;
   }
 
-  public static double getVoltage(CANSparkBase motor) {
+  public static double getVoltage(SparkBase motor) {
     return motor.getBusVoltage() * motor.getAppliedOutput();
   }
 }

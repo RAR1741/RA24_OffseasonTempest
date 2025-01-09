@@ -1,6 +1,6 @@
 package frc.robot.subsystems.drivetrain;
 
-import com.kauailabs.navx.frc.AHRS;
+import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,7 +21,7 @@ public class RAROdometry extends Subsystem {
   private RAROdometry() {
     super("Odometry");
 
-    m_gyro = new AHRS(SPI.Port.kMXP);
+    m_gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
     m_poseEstimator = new SwerveDrivePoseEstimator(
       m_swerve.getKinematics(),

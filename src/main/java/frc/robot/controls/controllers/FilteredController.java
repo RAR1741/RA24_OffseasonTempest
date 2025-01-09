@@ -14,9 +14,6 @@ public class FilteredController {
 
   public double k_allianceMultiplier = -1.0;
 
-  private ControllerIO controllerIO;
-  private ControllerIOInputsAutoLogged controllerInputs = new ControllerIOInputsAutoLogged();
-
   private GenericHID m_hid;
   private Deadband m_deadband = new Deadband(DEADBAND_LIMIT);
   private SquaredInput m_squaredInput = new SquaredInput(DEADBAND_LIMIT);
@@ -53,35 +50,35 @@ public class FilteredController {
   }
 
   public double getFilteredAxis(int axis) {
-    double value = controllerInputs.m_axisValues[axis];
+    double value = 0.0;
 
     // Apply squared input, if requested
     if (m_useSquaredInput) {
-      value = m_squaredInput.scale(value);
+      value = m_squaredInput.scale(m_hid.getRawAxis(axis));
     }
 
     // Apply deadband, if requested
     if (m_useDeadband) {
-      value = m_deadband.scale(value);
+      value = m_deadband.scale(m_hid.getRawAxis(axis));
     }
 
     return value;
   }
 
   public boolean getButton(int button) {
-    return controllerInputs.m_buttonValues[button];
+    return m_hid.getRawButton(button);
   }
 
   public boolean getButtonPressed(int button) {
-    return controllerInputs.m_buttonReleasedValues[button];
+    return m_hid.getRawButtonPressed(button);
   }
 
   public boolean getButtonReleased(int button) {
-    return controllerInputs.m_buttonReleasedValues[button];
+    return m_hid.getRawButtonReleased(button);
   }
 
   public int getPOV() {
-    return controllerInputs.m_dPadDir;
+    return m_hid.getPOV();
   }
 
   public boolean getHatPressed(int direction) {
