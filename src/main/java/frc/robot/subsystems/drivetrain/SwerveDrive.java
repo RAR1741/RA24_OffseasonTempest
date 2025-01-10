@@ -61,15 +61,13 @@ public class SwerveDrive extends Subsystem {
     return m_swerve;
   }
 
-  public void brakeOn() {
+  public void setBrake(boolean isBrake) {
     for (SwerveModule module : m_modules) {
-      module.getDriveMotor().setNeutralMode(NeutralModeValue.Coast);
-    }
-  }
-
-  public void brakeOff() {
-    for (SwerveModule module : m_modules) {
-      module.getDriveMotor().setNeutralMode(NeutralModeValue.Coast);
+      if(isBrake) {
+        module.getDriveMotor().setNeutralMode(NeutralModeValue.Brake);
+      } else {
+        module.getDriveMotor().setNeutralMode(NeutralModeValue.Coast);
+      }
     }
   }
 
@@ -97,23 +95,7 @@ public class SwerveDrive extends Subsystem {
     double maxBoostSpeed = Constants.SwerveDrive.k_maxSpeed * Constants.SwerveDrive.k_boostScaler;
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, maxBoostSpeed);
 
-    for (int i = 0; i < 3; i++) {
-      m_modules[i].setDesiredState(swerveModuleStates[i]);
-    }
-  }
-
-  public void pointModules(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, RAROdometry.getInstance().getGyro().getRotation2d())
-            : new ChassisSpeeds(xSpeed, ySpeed, rot));
-
-    // Zero out the speed component of each swerve module state
-    for (SwerveModuleState moduleState : swerveModuleStates) {
-      moduleState.speedMetersPerSecond = 0.0;
-    }
-
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].setDesiredState(swerveModuleStates[i]);
     }
   }
@@ -133,7 +115,7 @@ public class SwerveDrive extends Subsystem {
 
   @Override
   public void stop() {
-    brakeOn();
+    setBrake(true);
     drive(0.0, 0.0, 0.0, true);
   }
 

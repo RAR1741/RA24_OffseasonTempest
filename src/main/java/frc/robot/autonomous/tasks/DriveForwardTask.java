@@ -74,6 +74,5 @@ public class DriveForwardTask extends Task {
   public void done() {
     DriverStation.reportWarning("Auto driving done", false);
     m_swerve.drive(0, 0, 0, true);
-    m_swerve.pointModules(1, 0, 0, true);
   }
 }

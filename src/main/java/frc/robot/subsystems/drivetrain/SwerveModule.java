@@ -17,15 +17,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkRelativeEncoder;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Helpers;
 import frc.robot.wrappers.RARSparkMax;
-import frc.robot.wrappers.TalonSRXMagEncoder;
 
 public class SwerveModule {
   private final TalonFX m_driveMotor;
@@ -165,7 +162,7 @@ public class SwerveModule {
   }
 
   public void periodic() {
-    if (m_periodicIO.shouldChangeState) {
+    // if (m_periodicIO.shouldChangeState) {
       // if (!m_moduleDisabled) {
       double wheelCirc = Constants.SwerveDrive.k_wheelRadiusIn * 2.0d * Math.PI; //TODO: Move this
 
@@ -182,7 +179,7 @@ public class SwerveModule {
       // }
 
       m_periodicIO.shouldChangeState = false;
-    }
+    // }
   }
 
   // Logged
@@ -218,7 +215,7 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Abs/getTurnPosition")
   public double getAsbEncoderPosition() {
-    return m_turningAbsEncoder.getPosition() - m_turningOffset; // TODO: verify th
+    return m_turningAbsEncoder.getPosition() - m_turningOffset; // TODO: verify this is the absolute position
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Temperature")
