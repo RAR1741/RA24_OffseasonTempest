@@ -1,6 +1,9 @@
 package frc.robot.subsystems.drivetrain;
 
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -12,7 +15,9 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkRelativeEncoder;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -24,11 +29,11 @@ import frc.robot.wrappers.TalonSRXMagEncoder;
 
 public class SwerveModule {
   private final TalonFX m_driveMotor;
-  private final TalonFXConfiguration m_driveConfiguration;
   private final RARSparkMax m_turnMotor;
+  
+  private final SparkClosedLoopController m_turningPIDController;
+  private final SparkAbsoluteEncoder m_turningAbsEncoder;
   private final RelativeEncoder m_turningRelEncoder;
-  private final TalonSRXMagEncoder m_turningAbsEncoder;
-  private final SparkPIDController m_turningPIDController;
 
   private final PeriodicIO m_periodicIO = new PeriodicIO();
 
@@ -46,48 +51,48 @@ public class SwerveModule {
 
     m_driveMotor = new TalonFX(driveMotorChannel);
     m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
-    m_driveConfiguration = new TalonFXConfiguration();
+    TalonFXConfiguration driveConfig = new TalonFXConfiguration();
 
-    m_driveConfiguration.Feedback.SensorToMechanismRatio = Constants.SwerveDrive.Drive.k_driveGearRatio;
+    driveConfig.Feedback.SensorToMechanismRatio = Constants.SwerveDrive.Drive.k_driveGearRatio;
     // m_driveConfiguration.Feedback.RotorToSensorRatio = 0.0f; TODO: DO THIS PLEASE GOD I HOPE
 
-    m_driveConfiguration.Slot0.kP = Constants.SwerveDrive.Drive.k_P;
-    m_driveConfiguration.Slot0.kI = Constants.SwerveDrive.Drive.k_I;
-    m_driveConfiguration.Slot0.kD = Constants.SwerveDrive.Drive.k_D;
-    m_driveConfiguration.Slot0.kS = Constants.SwerveDrive.Drive.k_S;
-    m_driveConfiguration.Slot0.kV = Constants.SwerveDrive.Drive.k_V;
-    m_driveConfiguration.Slot0.kA = Constants.SwerveDrive.Drive.k_A;
-
+    driveConfig.Slot0.kP = Constants.SwerveDrive.Drive.k_P;
+    driveConfig.Slot0.kI = Constants.SwerveDrive.Drive.k_I;
+    driveConfig.Slot0.kD = Constants.SwerveDrive.Drive.k_D;
+    driveConfig.Slot0.kS = Constants.SwerveDrive.Drive.k_S;
+    driveConfig.Slot0.kV = Constants.SwerveDrive.Drive.k_V;
+    driveConfig.Slot0.kA = Constants.SwerveDrive.Drive.k_A;
     // m_driveMotor.setSmartCurrentLimit(Constants.Drivetrain.Drive.k_driveCurrentLimit);
 
-    m_turnMotor = new RARSparkMax(turningMotorChannel, MotorType.kBrushless);
-    m_turnMotor.restoreFactoryDefaults();
-    m_turnMotor.setIdleMode(IdleMode.kCoast);
-    m_turnMotor.setInverted(true);
-    // m_turnMotor.setSmartCurrentLimit(Constants.SwerveDrive.Drive.k_turnCurrentLimit);
-
-    m_turningAbsEncoder = new TalonSRXMagEncoder(turningEncoderChannel);
-
-    m_turningRelEncoder = m_turnMotor.getEncoder();
-    m_turningRelEncoder.setPositionConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI);
-    m_turningRelEncoder.setVelocityConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI / 60.0);
-
-    m_turningPIDController = m_turnMotor.getPIDController();
-    m_turningPIDController.setP(Constants.SwerveDrive.Drive.k_P);
-    m_turningPIDController.setI(Constants.SwerveDrive.Drive.k_I);
-    m_turningPIDController.setD(Constants.SwerveDrive.Drive.k_D);
-
-    m_turningPIDController.setPositionPIDWrappingEnabled(true);
-    m_turningPIDController.setPositionPIDWrappingMinInput(0.0);
-    m_turningPIDController.setPositionPIDWrappingMaxInput(2.0 * Math.PI);
-    m_turningPIDController.setOutputRange(
-        Constants.SwerveDrive.Turn.k_turningMinOutput,
-        Constants.SwerveDrive.Turn.k_turningMaxOutput);
-
     TalonFXConfigurator driveConfigurator = m_driveMotor.getConfigurator();
-    driveConfigurator.apply(m_driveConfiguration);
+    driveConfigurator.apply(driveConfig);
 
-    m_turnMotor.burnFlash();
+    m_turnMotor = new RARSparkMax(turningMotorChannel, MotorType.kBrushless);
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.idleMode(IdleMode.kCoast);
+    config.inverted(true);
+
+    config.encoder.positionConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI);
+    config.encoder.velocityConversionFactor(Constants.SwerveDrive.Turn.k_gearRatio * 2.0 * Math.PI / 60.0);
+
+    config.closedLoop.p(Constants.SwerveDrive.Turn.k_P);
+    config.closedLoop.i(Constants.SwerveDrive.Turn.k_I);
+    config.closedLoop.d(Constants.SwerveDrive.Turn.k_D);
+    config.closedLoop.positionWrappingEnabled(true);
+    config.closedLoop.positionWrappingMinInput(0.0);
+    config.closedLoop.positionWrappingMaxInput(2.0 * Math.PI);
+    config.closedLoop.outputRange(
+      Constants.SwerveDrive.Turn.k_turningMinOutput,
+      Constants.SwerveDrive.Turn.k_turningMaxOutput);
+    
+    // m_turnMotor.setSmartCurrentLimit(Constants.SwerveDrive.Drive.k_turnCurrentLimit);
+    // m_turningAbsEncoder = new TalonSRXMagEncoder(turningEncoderChannel);
+
+    m_turnMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    m_turningPIDController = m_turnMotor.getClosedLoopController();
+    m_turningAbsEncoder = m_turnMotor.getAbsoluteEncoder();
+    m_turningRelEncoder = m_turnMotor.getEncoder();
   }
 
   public SwerveModuleState getState() {
@@ -128,7 +133,7 @@ public class SwerveModule {
 
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
-    desiredState = SwerveModuleState.optimize(desiredState, Rotation2d.fromRadians(getTurnPosition()));
+    desiredState.optimize(Rotation2d.fromRadians(getTurnPosition()));
     desiredState.angle = new Rotation2d(Helpers.modRadians(desiredState.angle.getRadians()));
     m_periodicIO.shouldChangeState = !desiredState.equals(m_periodicIO.desiredState);
     m_periodicIO.desiredState = desiredState;
@@ -155,8 +160,7 @@ public class SwerveModule {
   public void pointForward() {
     m_periodicIO.desiredState.speedMetersPerSecond = 0.0;
     m_periodicIO.desiredState.angle = new Rotation2d(0.0);
-    m_periodicIO.desiredState = SwerveModuleState.optimize(m_periodicIO.desiredState,
-        Rotation2d.fromRadians(getTurnPosition()));
+    m_periodicIO.desiredState.optimize(Rotation2d.fromRadians(getTurnPosition()));
     m_periodicIO.shouldChangeState = true;
   }
 
@@ -214,7 +218,7 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Abs/getTurnPosition")
   public double getAsbEncoderPosition() {
-    return m_turningAbsEncoder.getAbsolutePosition() - m_turningOffset;
+    return m_turningAbsEncoder.getPosition() - m_turningOffset; // TODO: verify th
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Drive/Temperature")
@@ -244,7 +248,7 @@ public class SwerveModule {
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Turn/absPosition")
   public double getTurnAbsPosition() {
-    return Helpers.modRotations(m_turningAbsEncoder.getAbsolutePosition() - m_turningOffset);
+    return Helpers.modRotations(m_turningAbsEncoder.getPosition() - m_turningOffset);
   }
 
   @AutoLogOutput(key = "SwerveDrive/Modules/{m_moduleName}/Turn/Velocity")
