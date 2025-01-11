@@ -50,7 +50,7 @@ public final class Constants {
       // These values were obtained via SysId
       // In "Feedback Analysis" section, we set Measurement Delay to 58 ms, which was
       // pulled from the "Feedforward Analysis" Velocity Measurement Delay
-      public static final double k_P = 0.0;
+      public static final double k_P = 2.0;
       public static final double k_I = 0.0;
       public static final double k_D = 0.0;
 
@@ -73,7 +73,7 @@ public final class Constants {
 
       public static final double k_gearRatio = 7.0 / 150.0;
 
-      public static final double k_P = 0.0;
+      public static final double k_P = 2.0;
       public static final double k_I = 0.0;
       public static final double k_D = 0.0;
 

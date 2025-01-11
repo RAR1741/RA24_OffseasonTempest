@@ -3,23 +3,30 @@ package frc.robot.subsystems.drivetrain;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.configs.VoltageConfigs;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import frc.robot.Constants;
 import frc.robot.Helpers;
 import frc.robot.wrappers.RARSparkMax;
@@ -38,7 +45,7 @@ public class SwerveModule {
 
   private static class PeriodicIO {
     SwerveModuleState desiredState = new SwerveModuleState();
-    boolean shouldChangeState = false;
+    // boolean shouldChangeState = false;
   }
 
   private boolean m_moduleDisabled = false;
@@ -132,7 +139,7 @@ public class SwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees
     desiredState.optimize(Rotation2d.fromRadians(getTurnPosition()));
     desiredState.angle = new Rotation2d(Helpers.modRadians(desiredState.angle.getRadians()));
-    m_periodicIO.shouldChangeState = !desiredState.equals(m_periodicIO.desiredState);
+    // m_periodicIO.shouldChangeState = !desiredState.equals(m_periodicIO.desiredState);
     m_periodicIO.desiredState = desiredState;
   }
 
@@ -158,27 +165,30 @@ public class SwerveModule {
     m_periodicIO.desiredState.speedMetersPerSecond = 0.0;
     m_periodicIO.desiredState.angle = new Rotation2d(0.0);
     m_periodicIO.desiredState.optimize(Rotation2d.fromRadians(getTurnPosition()));
-    m_periodicIO.shouldChangeState = true;
+    // m_periodicIO.shouldChangeState = true;
   }
 
   public void periodic() {
     // if (m_periodicIO.shouldChangeState) {
-      // if (!m_moduleDisabled) {
-      double wheelCirc = Constants.SwerveDrive.k_wheelRadiusIn * 2.0d * Math.PI; //TODO: Move this
+    // if (!m_moduleDisabled) {
+    double wheelCirc = Constants.SwerveDrive.k_wheelRadiusIn * 2.0d * Math.PI; // TODO: Move this
 
-      VelocityVoltage m_request = new VelocityVoltage(getDriveTargetVelocity() / wheelCirc).withSlot(0);
-      m_driveMotor.setControl(m_request);
-      m_turningPIDController.setReference(getTurnTargetAngleRadians(), ControlType.kPosition);
-      // } else {
-      //   DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);
-      //   m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
-      //   m_turnMotor.setIdleMode(IdleMode.kCoast);
+    VelocityVoltage request = new VelocityVoltage(getDriveTargetVelocity() / wheelCirc).withSlot(0);
+    // PositionVoltage request = new PositionVoltage(0).withSlot(0);
+    // request.Velocity = getDriveTargetVelocity() / wheelCirc;
+    m_driveMotor.setControl(request);
+    m_turningPIDController.setReference(getTurnTargetAngleRadians(), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    
+    // } else {
+    //   DriverStation.reportWarning(m_moduleName + " is disabled, encoder is probably not plugged in!", false);
+    //   m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
+      // m_turnMotor.setIdleMode(IdleMode.kCoast);
 
-      //   // m_drivePIDController.setReference(0, ControlType.kVoltage);
-      //   m_turningPIDController.setReference(0, ControlType.kVoltage);
-      // }
+    //   // m_drivePIDController.setReference(0, ControlType.kVoltage);
+    //   m_turningPIDController.setReference(0, ControlType.kVoltage);
+    // }
 
-      m_periodicIO.shouldChangeState = false;
+    // m_periodicIO.shouldChangeState = false;
     // }
   }
 

@@ -13,8 +13,6 @@ import frc.robot.subsystems.Subsystem;
 
 public class SwerveDrive extends Subsystem {
   private static SwerveDrive m_swerve = null;
-  // private final RAROdometry m_odometry= RAROdometry.getInstance();
-  // private final AHRS m_gyro = m_odometry.getGyro();
   
   private SwerveDrive() {
     super("SwerveDrive");
